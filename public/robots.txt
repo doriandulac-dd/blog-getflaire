@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Crawl-delay: 1
+
+Sitemap: https://leblog.getflaire.fr/sitemap.xml
+
+# Spécifique pour les bots de réseaux sociaux
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
