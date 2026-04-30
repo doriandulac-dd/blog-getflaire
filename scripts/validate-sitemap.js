@@ -1,7 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const https = require('https');
-const { URL } = require('url');
+import fs from 'fs';
+import path from 'path';
+import https from 'https';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Validation script for sitemap
 async function validateSitemap() {
@@ -106,8 +109,8 @@ async function runValidation() {
   return isValid;
 }
 
-if (require.main === module) {
+if (process.argv[1] === __filename) {
   runValidation();
 }
 
-module.exports = { validateSitemap, testSitemapAccess, runValidation };
+export { validateSitemap, testSitemapAccess, runValidation };
