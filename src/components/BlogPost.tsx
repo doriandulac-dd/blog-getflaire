@@ -1,14 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { Calendar, User, ArrowLeft, Share2, ArrowRight, Zap, TrendingUp } from 'lucide-react';
 import { BlogPost as BlogPostType } from '../types/blog';
 import { BlogService } from '../services/blogService';
 import { formatDate } from '../utils/dateUtils';
-import { gsap, ScrollTrigger, useGSAP } from '../lib/gsap';
 
 export const BlogPost: React.FC = () => {
-  const pageRef = useRef<HTMLDivElement>(null);
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPostType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,75 +57,6 @@ export const BlogPost: React.FC = () => {
       }
     };
   }, [slug]);
-
-  useGSAP(() => {
-    if (loading || !post) return;
-
-    const mm = gsap.matchMedia();
-
-    mm.add('(prefers-reduced-motion: no-preference)', () => {
-      const headerTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-      headerTl
-        .from('.article-back', { autoAlpha: 0, x: -18, duration: 0.45 })
-        .from('.article-category', { autoAlpha: 0, y: 14, scale: 0.96, stagger: 0.06, duration: 0.4 }, '-=0.15')
-        .from('.article-title', { autoAlpha: 0, y: 36, duration: 0.72 }, '-=0.1')
-        .from('.article-meta', { autoAlpha: 0, y: 18, duration: 0.5 }, '-=0.25')
-        .from('.article-share', { autoAlpha: 0, y: 14, stagger: 0.05, duration: 0.35 }, '-=0.2');
-
-      gsap.from('.article-image', {
-        autoAlpha: 0,
-        y: 40,
-        scale: 0.96,
-        duration: 0.85,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: '.article-image',
-          start: 'top 84%',
-          once: true
-        }
-      });
-
-      gsap.from('.article-reveal', {
-        autoAlpha: 0,
-        y: 28,
-        duration: 0.62,
-        ease: 'power2.out',
-        stagger: 0.055,
-        scrollTrigger: {
-          trigger: '.article-body',
-          start: 'top 78%',
-          once: true
-        }
-      });
-
-      gsap.from('.article-cta', {
-        autoAlpha: 0,
-        y: 48,
-        scale: 0.94,
-        duration: 0.8,
-        ease: 'back.out(1.35)',
-        scrollTrigger: {
-          trigger: '.article-cta',
-          start: 'top 82%',
-          once: true
-        }
-      });
-
-      gsap.to('.article-cta-orb', {
-        rotate: 18,
-        scale: 1.15,
-        yoyo: true,
-        repeat: -1,
-        duration: 3.8,
-        ease: 'sine.inOut'
-      });
-
-      ScrollTrigger.refresh();
-    });
-
-    return () => mm.revert();
-  }, { scope: pageRef, dependencies: [loading, post?.id] });
 
   const sharePost = (platform: 'twitter' | 'linkedin' | 'facebook') => {
     if (!post) return;
@@ -185,11 +114,11 @@ export const BlogPost: React.FC = () => {
   }
 
   return (
-    <div ref={pageRef} className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4">
         <Link
           to="/blog"
-          className="article-back inline-flex items-center gap-2 text-primary hover:text-primary/80 mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 mb-8 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Retour au blog
@@ -202,7 +131,7 @@ export const BlogPost: React.FC = () => {
                 {post.categories.map((category) => (
                   <span
                     key={category.id}
-                    className="article-category px-3 py-1 text-sm font-medium text-primary bg-primary/10 rounded-full"
+                    className="px-3 py-1 text-sm font-medium text-primary bg-primary/10 rounded-full"
                   >
                     {category.name}
                   </span>
@@ -210,11 +139,11 @@ export const BlogPost: React.FC = () => {
               </div>
             )}
 
-            <h1 className="article-title text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
               {post.title}
             </h1>
 
-            <div className="article-meta flex flex-col sm:flex-row sm:items-center gap-4 text-gray-600 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-gray-600 mb-6">
               {post.author && (
                 <div className="flex items-center gap-3">
                   {post.author.avatar_url && (
@@ -244,7 +173,7 @@ export const BlogPost: React.FC = () => {
               </div>
             </div>
 
-            <div className="article-share flex items-center gap-4 mb-8">
+            <div className="flex items-center gap-4 mb-8">
               <span className="text-sm font-medium text-gray-700">Partager :</span>
               <div className="flex gap-2">
                 <button
@@ -273,7 +202,7 @@ export const BlogPost: React.FC = () => {
           </header>
 
           {post.featured_image_url && (
-            <div className="article-image aspect-video mb-8 rounded-2xl overflow-hidden">
+            <div className="aspect-video mb-8 rounded-2xl overflow-hidden">
               <img
                 src={post.featured_image_url}
                 alt={post.title}
@@ -282,18 +211,18 @@ export const BlogPost: React.FC = () => {
             </div>
           )}
 
-          <div className="article-body prose prose-lg max-w-none">
+          <div className="prose prose-lg max-w-none">
             <ReactMarkdown
               components={{
-                h1: ({ children }) => <h1 className="article-reveal text-3xl font-bold text-gray-900 mt-8 mb-4">{children}</h1>,
-                h2: ({ children }) => <h2 className="article-reveal text-2xl font-bold text-gray-900 mt-6 mb-3">{children}</h2>,
-                h3: ({ children }) => <h3 className="article-reveal text-xl font-semibold text-gray-900 mt-5 mb-2">{children}</h3>,
-                p: ({ children }) => <p className="article-reveal text-gray-700 leading-relaxed mb-4">{children}</p>,
-                ul: ({ children }) => <ul className="article-reveal list-disc pl-6 mb-4 space-y-2">{children}</ul>,
-                ol: ({ children }) => <ol className="article-reveal list-decimal pl-6 mb-4 space-y-2">{children}</ol>,
+                h1: ({ children }) => <h1 className="text-3xl font-bold text-gray-900 mt-8 mb-4">{children}</h1>,
+                h2: ({ children }) => <h2 className="text-2xl font-bold text-gray-900 mt-6 mb-3">{children}</h2>,
+                h3: ({ children }) => <h3 className="text-xl font-semibold text-gray-900 mt-5 mb-2">{children}</h3>,
+                p: ({ children }) => <p className="text-gray-700 leading-relaxed mb-4">{children}</p>,
+                ul: ({ children }) => <ul className="list-disc pl-6 mb-4 space-y-2">{children}</ul>,
+                ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 space-y-2">{children}</ol>,
                 li: ({ children }) => <li className="text-gray-700">{children}</li>,
                 blockquote: ({ children }) => (
-                  <blockquote className="article-reveal border-l-4 border-blue-500 pl-4 py-2 my-6 bg-blue-50 rounded-r-lg">
+                  <blockquote className="border-l-4 border-blue-500 pl-4 py-2 my-6 bg-blue-50 rounded-r-lg">
                     <div className="text-gray-700 italic">{children}</div>
                   </blockquote>
                 ),
@@ -319,10 +248,10 @@ export const BlogPost: React.FC = () => {
         </article>
 
         {/* CTA Section */}
-        <div className="article-cta my-16 bg-gradient-to-br from-secondary to-secondary/90 rounded-3xl p-8 md:p-12 text-white text-center relative overflow-hidden">
+        <div className="my-16 bg-gradient-to-br from-secondary to-secondary/90 rounded-3xl p-8 md:p-12 text-white text-center relative overflow-hidden">
           {/* Background decoration */}
-          <div className="article-cta-orb absolute top-4 right-4 w-20 h-20 bg-primary/10 rounded-full"></div>
-          <div className="article-cta-orb absolute bottom-4 left-4 w-16 h-16 bg-primary/5 rounded-full"></div>
+          <div className="absolute top-4 right-4 w-20 h-20 bg-primary/10 rounded-full"></div>
+          <div className="absolute bottom-4 left-4 w-16 h-16 bg-primary/5 rounded-full"></div>
           
           <div className="relative z-10">
             <div className="flex items-center justify-center mb-4">

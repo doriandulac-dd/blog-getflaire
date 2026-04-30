@@ -40,7 +40,7 @@ export const NewsletterForm: React.FC<NewsletterFormProps> = ({
       if (result.success) {
         setEmail(''); // Vider le champ en cas de succès
       }
-    } catch {
+    } catch (error) {
       setMessage({
         type: 'error',
         text: 'Une erreur est survenue. Veuillez réessayer.'

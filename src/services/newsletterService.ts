@@ -18,7 +18,7 @@ export class NewsletterService {
       }
 
       // Utiliser le client standard avec RLS configuré
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('newsletter_subscribers')
         .insert([
           {

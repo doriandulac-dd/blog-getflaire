@@ -1,451 +1,307 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://getflaire.fr/</loc>
-    <lastmod>2026-04-29</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://leblog.getflaire.fr/</loc>
+    <lastmod>2025-11-10</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog</loc>
-    <lastmod>2026-04-29</lastmod>
+    <loc>https://leblog.getflaire.fr/blog</loc>
+    <lastmod>2025-11-10</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-definition-avantages-bonnes-pratiques-agents</loc>
-    <lastmod>2026-04-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-bases-debutants-prospection-mandats</loc>
-    <lastmod>2026-04-17</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/formation-pige-immobiliere-prospection-sourcing-biens-script</loc>
-    <lastmod>2026-04-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-prospection-terrain-conseils</loc>
-    <lastmod>2026-04-03</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/crm-immobilier-pige-integree-getflaire</loc>
-    <lastmod>2026-03-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/getflaire-pige-alertes-intelligentes-immobilier-mandats-leads</loc>
-    <lastmod>2026-03-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/logiciel-immobilier-getflaire-gestion-rentabilite</loc>
-    <lastmod>2026-03-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-automatisee-getflaire-gain-temps-pros</loc>
-    <lastmod>2026-03-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/getflaire-saas-immobilier-crm-gestion-mandats-leads</loc>
-    <lastmod>2026-02-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-mandats-leads-qualite-rgpd</loc>
-    <lastmod>2026-02-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-legale-loi-immobilier</loc>
-    <lastmod>2026-02-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-prospection-mandats-conversion</loc>
-    <lastmod>2026-02-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-levier-obtenir-mandats</loc>
-    <lastmod>2026-01-30</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-erreurs-qualification-crm-gain-temps</loc>
-    <lastmod>2026-01-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-cout-campagne-mandat-roi</loc>
-    <lastmod>2026-01-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-internet-mandats-exclusifs</loc>
-    <lastmod>2026-01-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-lancer-prospection-etapes-mandats</loc>
-    <lastmod>2026-01-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-echec-agents-prospection-mandats</loc>
-    <lastmod>2025-12-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-logiciels-top10-meilleurs</loc>
-    <lastmod>2025-12-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-gratuite-payante-choisir</loc>
-    <lastmod>2025-12-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/meilleur-logiciel-pige-immobiliere-agences</loc>
-    <lastmod>2025-12-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-locative-differences-choisir</loc>
-    <lastmod>2025-11-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/comparatif-pige-immobiliere-2025-investisseurs-professionnels</loc>
-    <lastmod>2025-11-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-ia-solutions-prospection-automatique</loc>
-    <lastmod>2025-11-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://getflaire.fr/blog/logiciel-pige-immobiliere-rapide-rentabilite</loc>
+    <loc>https://leblog.getflaire.fr/blog/logiciel-pige-immobiliere-rapide-rentabilite</loc>
     <lastmod>2025-11-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/meilleur-crm-pige-immobiliere-adapte</loc>
+    <loc>https://leblog.getflaire.fr/blog/meilleur-crm-pige-immobiliere-adapte</loc>
     <lastmod>2025-10-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-plateformes-eviter-proteger</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-plateformes-eviter-proteger</loc>
     <lastmod>2025-10-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-abonnements-necessaires-nombre-cout</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-abonnements-necessaires-nombre-cout</loc>
     <lastmod>2025-10-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-ton-appel-agents-investisseurs</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-ton-appel-agents-investisseurs</loc>
     <lastmod>2025-10-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-phrases-accroche-decrocher-mandats</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-phrases-accroche-decrocher-mandats</loc>
     <lastmod>2025-10-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-appel-reussi-script-etapes</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-appel-reussi-script-etapes</loc>
     <lastmod>2025-09-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/rendez-vous-immobilier-appel-5-minutes</loc>
+    <loc>https://leblog.getflaire.fr/blog/rendez-vous-immobilier-appel-5-minutes</loc>
     <lastmod>2025-09-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-tentatives-abandonner-relances-nurturing</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-tentatives-abandonner-relances-nurturing</loc>
     <lastmod>2025-09-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/whatsapp-pige-immobiliere-strategie-agents-investisseurs</loc>
+    <loc>https://leblog.getflaire.fr/blog/whatsapp-pige-immobiliere-strategie-agents-investisseurs</loc>
     <lastmod>2025-09-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-objections-vendeurs-lever-conclure-vente</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-objections-vendeurs-lever-conclure-vente</loc>
     <lastmod>2025-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/repondre-vendeur-pas-agence-agent-immobilier-mandat</loc>
+    <loc>https://leblog.getflaire.fr/blog/repondre-vendeur-pas-agence-agent-immobilier-mandat</loc>
     <lastmod>2025-08-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/modeles-email-relance-apres-appel-pige-immobilier</loc>
+    <loc>https://leblog.getflaire.fr/blog/modeles-email-relance-apres-appel-pige-immobilier</loc>
     <lastmod>2025-08-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-checklist-appel-prospection-mandat</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-checklist-appel-prospection-mandat</loc>
     <lastmod>2025-08-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-nombre-mandats-mois</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-nombre-mandats-mois</loc>
     <lastmod>2025-08-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-cout-rdv-cac-rentabilite</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-cout-rdv-cac-rentabilite</loc>
     <lastmod>2025-07-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-nombre-appels-mandat</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-nombre-appels-mandat</loc>
     <lastmod>2025-07-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-strategie-locale-nationale-resultats</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-strategie-locale-nationale-resultats</loc>
     <lastmod>2025-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-doubler-mandats-90-jours</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-doubler-mandats-90-jours</loc>
     <lastmod>2025-07-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-concurrence-demarquer-seo</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-concurrence-demarquer-seo</loc>
     <lastmod>2025-06-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-impact-chiffre-affaires-mandats-roi</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-impact-chiffre-affaires-mandats-roi</loc>
     <lastmod>2025-06-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-deleguer-internaliser-strategie</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-deleguer-internaliser-strategie</loc>
     <lastmod>2025-06-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/calcul-roi-pige-immobiliere</loc>
+    <loc>https://leblog.getflaire.fr/blog/calcul-roi-pige-immobiliere</loc>
     <lastmod>2025-06-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-cibler-biens-rentabilite</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-cibler-biens-rentabilite</loc>
     <lastmod>2025-05-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-transformation-digitalisation-rgpd-ia</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-transformation-digitalisation-rgpd-ia</loc>
     <lastmod>2025-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/ia-pige-immobiliere-investisseurs-agences</loc>
+    <loc>https://leblog.getflaire.fr/blog/ia-pige-immobiliere-investisseurs-agences</loc>
     <lastmod>2025-05-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-rgpd-conformite-prospection-leads</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-rgpd-conformite-prospection-leads</loc>
     <lastmod>2025-05-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-facebook-marketplace-guide-risques-pratiques</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-facebook-marketplace-guide-risques-pratiques</loc>
     <lastmod>2025-05-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-leboncoin-methode-prospection</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-leboncoin-methode-prospection</loc>
     <lastmod>2025-04-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-seloger-optimiser-recherches-rentabilite</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-seloger-optimiser-recherches-rentabilite</loc>
     <lastmod>2025-04-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-automatisation-prospection-crm-scoring</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-automatisation-prospection-crm-scoring</loc>
     <lastmod>2025-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-locale-cibler-ville</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-locale-cibler-ville</loc>
     <lastmod>2025-04-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-rentabilite-2025-mandats</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-rentabilite-2025-mandats</loc>
     <lastmod>2025-03-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-2025-tendances-data-ia</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-2025-tendances-data-ia</loc>
     <lastmod>2025-03-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/digitaliser-pige-immobiliere-agences-investisseurs-transaction</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-ia-prospection-automatisation-scoring</loc>
     <lastmod>2025-03-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-ia-prospection-automatisation-scoring</loc>
+    <loc>https://leblog.getflaire.fr/blog/digitaliser-pige-immobiliere-agences-investisseurs-transaction</loc>
     <lastmod>2025-03-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-2025-mandats-rdv-qualifies</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-2025-mandats-rdv-qualifies</loc>
     <lastmod>2025-03-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-avantage-concurrentiel-prospection-mandats</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-avantage-concurrentiel-prospection-mandats</loc>
     <lastmod>2025-02-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-agences-independants-differences</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-agences-independants-differences</loc>
     <lastmod>2025-02-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-prospection-automatisation-workflows-n8n-make</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-prospection-automatisation-workflows-n8n-make</loc>
     <lastmod>2025-02-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-business-plan-methodes-rentabilite</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-business-plan-methodes-rentabilite</loc>
     <lastmod>2025-02-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-locale-specialiser-secteur</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-locale-specialiser-secteur</loc>
     <lastmod>2025-01-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-leboncoin-seloger-professionnels</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-leboncoin-seloger-professionnels</loc>
     <lastmod>2025-01-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-prospection-legale-rgpd-conformite</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-prospection-legale-rgpd-conformite</loc>
     <lastmod>2025-01-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-automatisee-prospection-ia</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-automatisee-prospection-ia</loc>
     <lastmod>2025-01-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-tendances-2025-ia-data</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-tendances-2025-ia-data</loc>
     <lastmod>2025-01-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/getflaire-pige-immobiliere-ia-automatisation-2025</loc>
+    <loc>https://leblog.getflaire.fr/blog/getflaire-pige-immobiliere-ia-automatisation-2025</loc>
     <lastmod>2024-12-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/pige-immobiliere-2025-methodes-outils</loc>
+    <loc>https://leblog.getflaire.fr/blog/pige-immobiliere-2025-methodes-outils</loc>
     <lastmod>2024-12-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://getflaire.fr/blog/meilleur-logiciel-pige-immobiliere-2025</loc>
+    <loc>https://leblog.getflaire.fr/blog/meilleur-logiciel-pige-immobiliere-2025</loc>
     <lastmod>2024-12-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

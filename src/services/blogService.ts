@@ -1,16 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { Author, BlogPost, Category } from '../types/blog';
-
-type BlogPostRow = BlogPost & {
-  authors: Author | null;
-  categories?: Array<{ category: Category | null }> | null;
-};
-
-const mapPostRow = (post: BlogPostRow): BlogPost => ({
-  ...post,
-  author: post.authors || undefined,
-  categories: post.categories?.map((pc) => pc.category).filter((category): category is Category => Boolean(category)) || []
-});
+import { BlogPost } from '../types/blog';
 
 export class BlogService {
   static async getAllPosts(): Promise<BlogPost[]> {
@@ -31,7 +20,11 @@ export class BlogService {
       throw error;
     }
 
-    return (data as BlogPostRow[] | null)?.map(mapPostRow) || [];
+    return data?.map(post => ({
+      ...post,
+      author: post.authors,
+      categories: post.categories?.map((pc: any) => pc.category) || []
+    })) || [];
   }
 
   static async getPostBySlug(slug: string): Promise<BlogPost | null> {
@@ -58,7 +51,11 @@ export class BlogService {
 
     if (!data) return null;
 
-    return mapPostRow(data as BlogPostRow);
+    return {
+      ...data,
+      author: data.authors,
+      categories: data.categories?.map((pc: any) => pc.category) || []
+    };
   }
 
   static async getLatestPosts(limit: number = 3): Promise<BlogPost[]> {
@@ -80,6 +77,10 @@ export class BlogService {
       throw error;
     }
 
-    return (data as BlogPostRow[] | null)?.map(mapPostRow) || [];
+    return data?.map(post => ({
+      ...post,
+      author: post.authors,
+      categories: post.categories?.map((pc: any) => pc.category) || []
+    })) || [];
   }
 }
