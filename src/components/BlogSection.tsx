@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, User } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { BlogPost } from '../types/blog';
 import { BlogService } from '../services/blogService';
-import { formatDateShort } from '../utils/dateUtils';
+import { BlogCard } from './BlogCard';
+import { gsap, prefersReducedMotion, ScrollTrigger, useGSAP } from '../lib/gsap';
 
 export const BlogSection: React.FC = () => {
+  const sectionRef = useRef<HTMLElement>(null);
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,16 +26,48 @@ export const BlogSection: React.FC = () => {
     fetchLatestPosts();
   }, []);
 
+  useGSAP(() => {
+    if (loading || prefersReducedMotion()) return;
+
+    const cards = gsap.utils.toArray<HTMLElement>('[data-blog-card]');
+
+    gsap.from('.blog-section-heading', {
+      y: 36,
+      autoAlpha: 0,
+      duration: 0.7,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top 76%',
+        toggleActions: 'play none none reverse',
+      },
+    });
+
+    ScrollTrigger.batch(cards, {
+      start: 'top 86%',
+      once: true,
+      onEnter: (batch) => {
+        gsap.fromTo(
+          batch,
+          { y: 42, autoAlpha: 0, rotateX: -8, filter: 'blur(10px)' },
+          { y: 0, autoAlpha: 1, rotateX: 0, filter: 'blur(0px)', duration: 0.7, ease: 'power3.out', stagger: 0.12 }
+        );
+      },
+    });
+
+    return () => ScrollTrigger.refresh();
+  }, { scope: sectionRef, dependencies: [loading, posts.length], revertOnUpdate: true });
+
   if (loading) {
     return (
-      <section className="py-20 bg-gray-50">
+      <section className="editorial-shell py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-black text-secondary mb-4">
               Blog GetFlaire
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Découvrez nos derniers articles sur le développement, le design et l'entrepreneurship
+            <p className="text-xl text-tertiary max-w-3xl mx-auto">
+              Découvrez nos derniers articles sur la prospection immobilière.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -54,87 +88,32 @@ export const BlogSection: React.FC = () => {
   }
 
     return (
-    <section className="py-14 bg-background">
+    <section ref={sectionRef} className="editorial-shell py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-secondary mb-4">
-            Blog GetFlaire
+        <div className="blog-section-heading mx-auto mb-14 max-w-4xl text-center">
+          <span className="mb-4 inline-flex rounded-full border border-secondary/10 bg-white/80 px-4 py-2 text-sm font-extrabold uppercase tracking-wide text-primary shadow-sm">
+            Le radar des agences modernes
+          </span>
+          <h2 className="text-4xl font-black text-secondary mb-4 md:text-6xl">
+            Des idées qui accélèrent vos mandats
           </h2>
-          <p className="text-xl text-tertiary max-w-3xl mx-auto">
+          <p className="text-lg text-tertiary md:text-xl">
             Découvrez nos derniers articles sur la pige immobilière, l'investissement et les stratégies digitales des agences.
           </p>
         </div>
 
         {posts.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div className="grid grid-cols-1 gap-6 mb-12 md:grid-cols-2 lg:grid-cols-3">
               {posts.map((post) => (
-                <article key={post.id} className="card overflow-hidden">
-                  {post.featured_image_url && (
-                    <div className="aspect-video overflow-hidden">
-                      <img
-                        src={post.featured_image_url}
-                        alt={post.title}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  )}
-                  
-                  <div className="p-6">
-                    {post.categories && post.categories.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {post.categories.map((category) => (
-                          <span
-                            key={category.id}
-                            className="px-2 py-1 text-xs font-medium text-primary bg-primary/10 rounded-2xl"
-                          >
-                            {category.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    <h3 className="text-lg font-bold text-secondary mb-2 line-clamp-2">
-                      <Link to={`/blog/${post.slug}`} className="hover:text-primary transition-colors">
-                        {post.title}
-                      </Link>
-                    </h3>
-
-                    <p className="text-tertiary mb-4 line-clamp-2 text-sm leading-relaxed">
-                      {post.excerpt}
-                    </p>
-
-                    <div className="flex items-center justify-between text-xs text-tertiary mb-4">
-                      <div className="flex items-center gap-3">
-                        {post.author && (
-                          <div className="flex items-center gap-1">
-                            <User className="w-3 h-3" />
-                            <span>{post.author.name}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          <span>{formatDateShort(post.published_at)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <Link
-                      to={`/blog/${post.slug}`}
-                      className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors group text-sm"
-                    >
-                      Lire la suite
-                      <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </div>
-                </article>
+                <BlogCard key={post.id} post={post} />
               ))}
             </div>
 
             <div className="text-center">
               <Link
                 to="/blog"
-                className="btn-primary inline-flex items-center gap-2 px-8 py-4 font-medium"
+                className="btn-primary inline-flex items-center gap-2 px-8 py-4"
               >
                 Voir tous les articles
                 <ArrowRight className="w-4 h-4" />

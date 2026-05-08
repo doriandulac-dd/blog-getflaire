@@ -18,7 +18,7 @@ export class NewsletterService {
       }
 
       // Utiliser le client standard avec RLS configuré
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('newsletter_subscribers')
         .insert([
           {
@@ -26,8 +26,7 @@ export class NewsletterService {
             source,
             subscribed_at: new Date().toISOString()
           }
-        ])
-        .select();
+        ]);
 
       if (error) {
         // Gestion de l'erreur de duplication (email déjà inscrit)

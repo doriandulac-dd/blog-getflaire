@@ -1,18 +1,24 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import { gsap, prefersReducedMotion, useGSAP } from '../lib/gsap';
 
 export const Header: React.FC = () => {
+  const headerRef = useRef<HTMLElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsMenuOpen(false);
-  };
+  useGSAP(() => {
+    if (prefersReducedMotion()) return;
+
+    gsap.from('.header-item', {
+      y: -18,
+      autoAlpha: 0,
+      duration: 0.55,
+      stagger: 0.045,
+      ease: 'power3.out',
+    });
+  }, { scope: headerRef });
 
   const isActive = (href: string) => {
     if (href === '/') {
@@ -22,11 +28,11 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
+    <header ref={headerRef} className="fixed top-0 left-0 right-0 z-50 border-b border-secondary/10 bg-white/85 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div className="header-item flex-shrink-0">
             <Link 
               to="/"
               className="hover:opacity-80 transition-opacity"
@@ -40,70 +46,71 @@ export const Header: React.FC = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden xl:flex items-center space-x-7">
             <a 
               href="https://getflaire.fr/"
-              className="text-[#778DA9] hover:text-[#1B263B] font-medium transition-colors"
+              className="header-item text-tertiary hover:text-secondary font-bold transition-colors"
             >
               Fonctionnalités
             </a>
             <a 
               href="https://getflaire.fr/"
-              className="text-[#778DA9] hover:text-[#1B263B] font-medium transition-colors"
+              className="header-item text-tertiary hover:text-secondary font-bold transition-colors"
             >
               Tarifs
             </a>
             <a 
               href="https://getflaire.fr/"
-              className="text-[#778DA9] hover:text-[#1B263B] font-medium transition-colors"
+              className="header-item text-tertiary hover:text-secondary font-bold transition-colors"
             >
               FAQ
             </a>
             <a 
               href="https://getflaire.fr/contact"
-              className="text-[#778DA9] hover:text-[#1B263B] font-medium transition-colors"
+              className="header-item text-tertiary hover:text-secondary font-bold transition-colors"
             >
               Contact
             </a>
             <Link 
               to="/blog"
-              className={`font-medium transition-colors ${
+              className={`header-item font-bold transition-colors ${
                 isActive('/blog')
-                  ? 'text-[#1B263B]'
-                  : 'text-[#778DA9] hover:text-[#1B263B]'
+                  ? 'text-secondary'
+                  : 'text-tertiary hover:text-secondary'
               }`}
             >
               Blog
             </Link>
             <button 
               onClick={() => window.location.href = 'https://getflaire.fr/affiliation'}
-              className="text-[#778DA9] hover:text-[#1B263B] font-medium transition-colors"
+              className="header-item text-tertiary hover:text-secondary font-bold transition-colors"
             >
               Affiliation
             </button>
           </nav>
 
           {/* Desktop CTA Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden xl:flex items-center space-x-4">
             <a 
               href="https://app.getflaire.fr"
-              className="px-4 py-2 border border-[#778DA9] text-[#778DA9] hover:bg-[#778DA9] hover:text-white rounded-2xl font-medium transition-colors"
+              className="header-item px-4 py-2 border border-secondary/25 text-secondary hover:border-secondary rounded-xl font-bold transition-colors"
             >
               Connexion
             </a>
             <a 
               href="https://app.getflaire.fr"
-              className="px-4 py-2 bg-[#FFB23F] hover:bg-[#FF8F00] text-white rounded-2xl font-medium transition-colors"
+              className="header-item px-4 py-2 bg-primary hover:bg-[#ff9f1f] text-secondary rounded-xl font-extrabold shadow-lg shadow-primary/25 transition-colors"
             >
               Essayer gratuitement
             </a>
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="xl:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-[#778DA9] hover:text-[#1B263B] p-2"
+              className="header-item text-tertiary hover:text-secondary p-2"
+              aria-label="Ouvrir le menu"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -112,32 +119,32 @@ export const Header: React.FC = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
+          <div className="xl:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-secondary/10 shadow-xl">
               <a 
                 href="https://getflaire.fr/"
-                className="block w-full text-left px-3 py-2 text-[#778DA9] hover:text-[#1B263B] font-medium"
+                className="block w-full text-left px-3 py-2 text-tertiary hover:text-secondary font-bold"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Fonctionnalités
               </a>
               <a 
                 href="https://getflaire.fr/"
-                className="block w-full text-left px-3 py-2 text-[#778DA9] hover:text-[#1B263B] font-medium"
+                className="block w-full text-left px-3 py-2 text-tertiary hover:text-secondary font-bold"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Tarifs
               </a>
               <a 
                 href="https://getflaire.fr/"
-                className="block w-full text-left px-3 py-2 text-[#778DA9] hover:text-[#1B263B] font-medium"
+                className="block w-full text-left px-3 py-2 text-tertiary hover:text-secondary font-bold"
                 onClick={() => setIsMenuOpen(false)}
               >
                 FAQ
               </a>
               <a 
                 href="https://getflaire.fr/contact"
-                className="block w-full text-left px-3 py-2 text-[#778DA9] hover:text-[#1B263B] font-medium"
+                className="block w-full text-left px-3 py-2 text-tertiary hover:text-secondary font-bold"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
@@ -145,10 +152,10 @@ export const Header: React.FC = () => {
               <Link 
                 to="/blog"
                 onClick={() => setIsMenuOpen(false)}
-                className={`block w-full text-left px-3 py-2 font-medium ${
+                className={`block w-full text-left px-3 py-2 font-bold ${
                   isActive('/blog')
-                    ? 'text-[#1B263B]'
-                    : 'text-[#778DA9] hover:text-[#1B263B]'
+                    ? 'text-secondary'
+                    : 'text-tertiary hover:text-secondary'
                 }`}
               >
                 Blog
@@ -157,13 +164,13 @@ export const Header: React.FC = () => {
               <div className="pt-4 space-y-2">
                 <a 
                   href="https://app.getflaire.fr"
-                  className="block w-full text-center px-4 py-2 border border-[#778DA9] text-[#778DA9] hover:bg-[#778DA9] hover:text-white rounded-2xl font-medium transition-colors"
+                  className="block w-full text-center px-4 py-2 border border-secondary/25 text-secondary hover:border-secondary rounded-xl font-bold transition-colors"
                 >
                   Connexion
                 </a>
                 <a 
                   href="https://app.getflaire.fr"
-                  className="block w-full text-center px-4 py-2 bg-[#FFB23F] hover:bg-[#FF8F00] text-white rounded-2xl font-medium transition-colors"
+                  className="block w-full text-center px-4 py-2 bg-primary hover:bg-[#ff9f1f] text-secondary rounded-xl font-extrabold transition-colors"
                 >
                   Essayer gratuitement
                 </a>

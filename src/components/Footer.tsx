@@ -16,24 +16,24 @@ export const Footer: React.FC = () => {
                 className="h-8 w-auto"
               />
             </Link>
-             <p className="text-[#778DA9] leading-relaxed max-w-md">
+             <p className="text-[#b7c3d8] leading-relaxed max-w-md">
               GetFlaire révolutionne la prospection immobilière en automatisant la veille du marché et en centralisant tous vos outils dans une seule plateforme intuitive.
             </p>
           </div>
 
           {/* Contact */}
           <div className="lg:col-span-1">
-            <h3 className="text-lg font-semibold mb-4">Contact</h3>
+            <h3 className="text-lg font-extrabold mb-4">Contact</h3>
             <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-tertiary">
+              <li className="flex items-center gap-2 text-[#b7c3d8]">
                 <Mail className="w-4 h-4" />
                 <span>hello@getflaire.fr</span>
               </li>
-              <li className="flex items-center gap-2 text-tertiary">
+              <li className="flex items-center gap-2 text-[#b7c3d8]">
                 <Phone className="w-4 h-4" />
                 <span>+33 1 23 45 67 89</span>
               </li>
-              <li className="flex items-center gap-2 text-tertiary">
+              <li className="flex items-center gap-2 text-[#b7c3d8]">
                 <MapPin className="w-4 h-4" />
                 <span>Paris, France</span>
               </li>
@@ -42,7 +42,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="border-t border-tertiary/20 mt-8 pt-8 text-center">
-          <p className="text-tertiary">
+          <p className="text-[#b7c3d8]">
             © {new Date().getFullYear()} GetFlaire. Tous droits réservés.
           </p>
         </div>

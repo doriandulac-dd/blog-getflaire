@@ -1,14 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { Calendar, User, ArrowLeft, Share2, ArrowRight, Zap, TrendingUp } from 'lucide-react';
+import { Calendar, User, ArrowLeft, Share2, ArrowRight, Zap, TrendingUp, MousePointer2 } from 'lucide-react';
 import { BlogPost as BlogPostType } from '../types/blog';
 import { BlogService } from '../services/blogService';
 import { formatDate } from '../utils/dateUtils';
+import { gsap, prefersReducedMotion, ScrollTrigger, useGSAP } from '../lib/gsap';
 
 export const BlogPost: React.FC = () => {
+  const pageRef = useRef<HTMLDivElement>(null);
+  const articleRef = useRef<HTMLElement>(null);
+  const [readingProgress, setReadingProgress] = useState(0);
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPostType | null>(null);
+  const [previousPost, setPreviousPost] = useState<BlogPostType | null>(null);
+  const [nextPost, setNextPost] = useState<BlogPostType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,12 +24,23 @@ export const BlogPost: React.FC = () => {
     const fetchPost = async () => {
       try {
         setLoading(true);
+        setError(null);
+        setPreviousPost(null);
+        setNextPost(null);
         const data = await BlogService.getPostBySlug(slug);
         if (!data) {
           setError('Article non trouvé');
           return;
         }
         setPost(data);
+
+        try {
+          const adjacentPosts = await BlogService.getAdjacentPosts(data.published_at, data.id);
+          setPreviousPost(adjacentPosts.previousPost);
+          setNextPost(adjacentPosts.nextPost);
+        } catch (adjacentError) {
+          console.error('Erreur lors du chargement des articles voisins:', adjacentError);
+        }
         
         // Update page title
         document.title = `${data.title} - GetFlaire Blog`;
@@ -58,6 +75,166 @@ export const BlogPost: React.FC = () => {
     };
   }, [slug]);
 
+  useGSAP(() => {
+    if (!post || loading) return;
+    const reduceMotion = prefersReducedMotion();
+    const mm = gsap.matchMedia();
+
+    gsap.set('.reading-progress', { scaleX: 0, transformOrigin: 'left center' });
+
+    ScrollTrigger.create({
+      trigger: articleRef.current,
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: (self) => {
+        const progress = Math.round(self.progress * 100);
+        gsap.set('.reading-progress', { scaleX: self.progress });
+        setReadingProgress(progress);
+      },
+    });
+
+    if (reduceMotion) return;
+
+    const intro = gsap.timeline({
+      defaults: { duration: 0.72, ease: 'power3.out' },
+    });
+
+    intro
+      .from('.post-back', { x: -18, autoAlpha: 0 })
+      .from('.post-category', { y: 18, autoAlpha: 0, stagger: 0.06 }, '-=0.38')
+      .from('.post-title-line', { yPercent: 105, rotateX: -20, autoAlpha: 0, stagger: 0.08 }, '-=0.36')
+      .from('.post-meta', { y: 24, autoAlpha: 0, filter: 'blur(10px)' }, '-=0.36')
+      .from('.post-share', { y: 18, autoAlpha: 0, stagger: 0.05 }, '-=0.34');
+
+    gsap.fromTo(
+      '.post-hero-mask',
+      { clipPath: 'inset(0 100% 0 0)' },
+      {
+        clipPath: 'inset(0 0% 0 0)',
+        duration: 1.05,
+        ease: 'power4.out',
+        scrollTrigger: {
+          trigger: '.post-hero-mask',
+          start: 'top 86%',
+          toggleActions: 'play none none reverse',
+        },
+      },
+    );
+
+    mm.add(
+      {
+        isDesktop: '(min-width: 768px)',
+        isMobile: '(max-width: 767px)',
+      },
+      ({ conditions }) => {
+        const { isDesktop } = conditions as { isDesktop: boolean };
+
+        gsap.to('.post-hero-image img', {
+          y: isDesktop ? 58 : 24,
+          scale: isDesktop ? 1.08 : 1.04,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.post-hero-mask',
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1,
+          },
+        });
+
+        gsap.to('.reading-pill', {
+          y: isDesktop ? 18 : 0,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: articleRef.current,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 1,
+          },
+        });
+      }
+    );
+
+    ScrollTrigger.batch('.markdown-reveal', {
+      interval: 0.08,
+      batchMax: 4,
+      start: 'top 88%',
+      once: true,
+      onEnter: (batch) => {
+        gsap.fromTo(
+          batch,
+          { y: 28, autoAlpha: 0, filter: 'blur(10px)' },
+          {
+            y: 0,
+            autoAlpha: 1,
+            filter: 'blur(0px)',
+            duration: 0.68,
+            ease: 'power3.out',
+            stagger: 0.08,
+            overwrite: true,
+          }
+        );
+      },
+    });
+
+    gsap.from('.post-cta > *', {
+      y: 28,
+      autoAlpha: 0,
+      duration: 0.6,
+      ease: 'power3.out',
+      stagger: 0.08,
+      scrollTrigger: {
+        trigger: '.post-cta',
+        start: 'top 78%',
+        toggleActions: 'play none none reverse',
+      },
+    });
+
+    gsap.to('.post-cta-orbit', {
+      rotate: 360,
+      duration: 24,
+      ease: 'none',
+      repeat: -1,
+    });
+
+    gsap.from('.post-cta-stat', {
+      scale: 0.82,
+      autoAlpha: 0,
+      duration: 0.55,
+      ease: 'back.out(1.8)',
+      stagger: 0.09,
+      scrollTrigger: {
+        trigger: '.post-cta',
+        start: 'top 76%',
+        toggleActions: 'play none none reverse',
+      },
+    });
+
+    ScrollTrigger.batch('.post-adjacent-card', {
+      start: 'top 92%',
+      once: true,
+      onEnter: (batch) => {
+        gsap.fromTo(
+          batch,
+          { y: 24, autoAlpha: 0, filter: 'blur(10px)' },
+          {
+            y: 0,
+            autoAlpha: 1,
+            filter: 'blur(0px)',
+            duration: 0.62,
+            ease: 'power3.out',
+            stagger: 0.1,
+            overwrite: true,
+          }
+        );
+      },
+    });
+
+    return () => {
+      mm.revert();
+      ScrollTrigger.refresh();
+    };
+  }, { scope: pageRef, dependencies: [post?.id, loading], revertOnUpdate: true });
+
   const sharePost = (platform: 'twitter' | 'linkedin' | 'facebook') => {
     if (!post) return;
     
@@ -75,7 +252,7 @@ export const BlogPost: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="editorial-shell min-h-screen py-28">
         <div className="max-w-4xl mx-auto px-4">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded mb-6"></div>
@@ -93,7 +270,7 @@ export const BlogPost: React.FC = () => {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="editorial-shell min-h-screen py-28">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             {error || 'Article non trouvé'}
@@ -114,24 +291,33 @@ export const BlogPost: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-4xl mx-auto px-4">
+    <div ref={pageRef} className="editorial-shell min-h-screen py-28">
+      <div className="fixed left-0 top-16 z-40 h-1 w-full bg-secondary/10">
+        <div className="reading-progress h-full w-full origin-left scale-x-0 bg-primary" />
+      </div>
+
+      <div className="reading-pill fixed right-4 top-24 z-40 hidden rounded-full border border-secondary/10 bg-white/90 px-3 py-2 text-xs font-extrabold text-secondary shadow-lg shadow-secondary/10 backdrop-blur md:flex md:items-center md:gap-2">
+        <MousePointer2 className="h-3.5 w-3.5 text-primary" />
+        <span>{readingProgress}% lu</span>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4">
         <Link
           to="/blog"
-          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 mb-8 transition-colors"
+          className="post-back mb-8 inline-flex items-center gap-2 font-extrabold text-primary transition-colors hover:text-[#ff930f]"
         >
           <ArrowLeft className="w-4 h-4" />
           Retour au blog
         </Link>
 
-        <article>
-          <header className="mb-8">
+        <article ref={articleRef}>
+          <header className="mb-10">
             {post.categories && post.categories.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
                 {post.categories.map((category) => (
                   <span
                     key={category.id}
-                    className="px-3 py-1 text-sm font-medium text-primary bg-primary/10 rounded-full"
+                    className="post-category rounded-full bg-primary/15 px-3 py-1 text-sm font-extrabold uppercase tracking-wide text-secondary"
                   >
                     {category.name}
                   </span>
@@ -139,11 +325,15 @@ export const BlogPost: React.FC = () => {
               </div>
             )}
 
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-              {post.title}
+            <h1 className="max-w-4xl overflow-hidden text-5xl font-black leading-tight text-secondary mb-6 md:text-7xl">
+              {post.title.split(' ').map((word, index) => (
+                <span key={`${word}-${index}`} className="inline-block overflow-hidden pr-3 pb-2">
+                  <span className="post-title-line inline-block">{word}</span>
+                </span>
+              ))}
             </h1>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-gray-600 mb-6">
+            <div className="post-meta flex flex-col gap-4 text-tertiary mb-6 sm:flex-row sm:items-center">
               {post.author && (
                 <div className="flex items-center gap-3">
                   {post.author.avatar_url && (
@@ -156,10 +346,10 @@ export const BlogPost: React.FC = () => {
                   <div>
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4" />
-                      <span className="font-medium">{post.author.name}</span>
+                      <span className="font-bold">{post.author.name}</span>
                     </div>
                     {post.author.bio && (
-                      <p className="text-sm text-gray-500 max-w-md">
+                      <p className="text-sm text-tertiary max-w-md">
                         {post.author.bio}
                       </p>
                     )}
@@ -173,26 +363,26 @@ export const BlogPost: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 mb-8">
-              <span className="text-sm font-medium text-gray-700">Partager :</span>
+            <div className="post-share flex items-center gap-4 mb-8">
+              <span className="text-sm font-extrabold text-secondary">Partager :</span>
               <div className="flex gap-2">
                 <button
                   onClick={() => sharePost('twitter')}
-                  className="p-2 text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="rounded-lg p-2 text-tertiary transition-colors hover:bg-primary/10 hover:text-primary"
                   aria-label="Partager sur Twitter"
                 >
                   <Share2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => sharePost('linkedin')}
-                  className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="rounded-lg p-2 text-tertiary transition-colors hover:bg-primary/10 hover:text-primary"
                   aria-label="Partager sur LinkedIn"
                 >
                   <Share2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => sharePost('facebook')}
-                  className="p-2 text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="rounded-lg p-2 text-tertiary transition-colors hover:bg-primary/10 hover:text-primary"
                   aria-label="Partager sur Facebook"
                 >
                   <Share2 className="w-4 h-4" />
@@ -202,44 +392,46 @@ export const BlogPost: React.FC = () => {
           </header>
 
           {post.featured_image_url && (
-            <div className="aspect-video mb-8 rounded-2xl overflow-hidden">
+            <div className="post-hero-mask aspect-video mb-10 overflow-hidden rounded-xl shadow-2xl shadow-secondary/15">
+              <div className="post-hero-image h-full w-full overflow-hidden">
               <img
                 src={post.featured_image_url}
                 alt={post.title}
-                className="w-full h-full object-cover"
+                className="w-full h-[112%] object-cover"
               />
+              </div>
             </div>
           )}
 
-          <div className="prose prose-lg max-w-none">
+          <div className="prose prose-lg max-w-none rounded-xl border border-secondary/10 bg-white/80 p-6 shadow-sm md:p-10">
             <ReactMarkdown
               components={{
-                h1: ({ children }) => <h1 className="text-3xl font-bold text-gray-900 mt-8 mb-4">{children}</h1>,
-                h2: ({ children }) => <h2 className="text-2xl font-bold text-gray-900 mt-6 mb-3">{children}</h2>,
-                h3: ({ children }) => <h3 className="text-xl font-semibold text-gray-900 mt-5 mb-2">{children}</h3>,
-                p: ({ children }) => <p className="text-gray-700 leading-relaxed mb-4">{children}</p>,
-                ul: ({ children }) => <ul className="list-disc pl-6 mb-4 space-y-2">{children}</ul>,
-                ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 space-y-2">{children}</ol>,
-                li: ({ children }) => <li className="text-gray-700">{children}</li>,
+                h1: ({ children }) => <h1 className="markdown-reveal text-3xl font-black text-secondary mt-8 mb-4">{children}</h1>,
+                h2: ({ children }) => <h2 className="markdown-reveal text-2xl font-black text-secondary mt-6 mb-3">{children}</h2>,
+                h3: ({ children }) => <h3 className="markdown-reveal text-xl font-bold text-secondary mt-5 mb-2">{children}</h3>,
+                p: ({ children }) => <p className="markdown-reveal text-[#33415c] leading-relaxed mb-4">{children}</p>,
+                ul: ({ children }) => <ul className="markdown-reveal list-disc pl-6 mb-4 space-y-2">{children}</ul>,
+                ol: ({ children }) => <ol className="markdown-reveal list-decimal pl-6 mb-4 space-y-2">{children}</ol>,
+                li: ({ children }) => <li className="text-[#33415c]">{children}</li>,
                 blockquote: ({ children }) => (
-                  <blockquote className="border-l-4 border-blue-500 pl-4 py-2 my-6 bg-blue-50 rounded-r-lg">
-                    <div className="text-gray-700 italic">{children}</div>
+                  <blockquote className="markdown-reveal border-l-4 border-primary pl-4 py-2 my-6 bg-primary/10 rounded-r-lg">
+                    <div className="text-[#33415c] italic">{children}</div>
                   </blockquote>
                 ),
                 code: ({ children, className }) => {
                   const isInline = !className;
                   return isInline ? (
-                    <code className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm font-mono">
+                    <code className="bg-secondary/10 text-secondary px-2 py-1 rounded text-sm font-mono">
                       {children}
                     </code>
                   ) : (
-                    <code className="block bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm font-mono">
+                    <code className="markdown-reveal block bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm font-mono">
                       {children}
                     </code>
                   );
                 },
-                strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
-                em: ({ children }) => <em className="italic text-gray-700">{children}</em>
+                strong: ({ children }) => <strong className="font-bold text-secondary">{children}</strong>,
+                em: ({ children }) => <em className="italic text-[#33415c]">{children}</em>
               }}
             >
               {post.content}
@@ -247,11 +439,83 @@ export const BlogPost: React.FC = () => {
           </div>
         </article>
 
+        {(previousPost || nextPost) && (
+          <nav className="post-adjacent-nav my-14 grid grid-cols-1 gap-4 md:grid-cols-2" aria-label="Navigation entre articles">
+            {previousPost ? (
+              <Link
+                to={`/blog/${previousPost.slug}`}
+                className="post-adjacent-card group overflow-hidden rounded-xl border border-secondary/10 bg-white/85 text-left shadow-lg shadow-secondary/5 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10"
+              >
+                {previousPost.featured_image_url ? (
+                  <div className="aspect-video overflow-hidden">
+                    <img
+                      src={previousPost.featured_image_url}
+                      alt={previousPost.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-video bg-primary/10" />
+                )}
+                <div className="p-6">
+                  <span className="mb-4 inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-wide text-primary">
+                    <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                    Article précédent
+                  </span>
+                  <h3 className="mb-3 text-2xl font-black leading-tight text-secondary">
+                    {previousPost.title}
+                  </h3>
+                  <p className="line-clamp-2 text-sm leading-relaxed text-tertiary">
+                    {previousPost.excerpt}
+                  </p>
+                </div>
+              </Link>
+            ) : (
+              <div className="hidden md:block" />
+            )}
+
+            {nextPost ? (
+              <Link
+                to={`/blog/${nextPost.slug}`}
+                className="post-adjacent-card group overflow-hidden rounded-xl border border-secondary/10 bg-white/85 text-left shadow-lg shadow-secondary/5 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 md:text-right"
+              >
+                {nextPost.featured_image_url ? (
+                  <div className="aspect-video overflow-hidden">
+                    <img
+                      src={nextPost.featured_image_url}
+                      alt={nextPost.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-video bg-primary/10" />
+                )}
+                <div className="p-6">
+                  <span className="mb-4 inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-wide text-primary md:justify-end">
+                    Article suivant
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                  <h3 className="mb-3 text-2xl font-black leading-tight text-secondary">
+                    {nextPost.title}
+                  </h3>
+                  <p className="line-clamp-2 text-sm leading-relaxed text-tertiary">
+                    {nextPost.excerpt}
+                  </p>
+                </div>
+              </Link>
+            ) : (
+              <div className="hidden md:block" />
+            )}
+          </nav>
+        )}
+
         {/* CTA Section */}
-        <div className="my-16 bg-gradient-to-br from-secondary to-secondary/90 rounded-3xl p-8 md:p-12 text-white text-center relative overflow-hidden">
+        <div className="post-cta relative my-16 overflow-hidden rounded-xl bg-gradient-to-br from-secondary via-[#182640] to-[#0f1728] p-8 text-center text-white shadow-2xl shadow-secondary/20 md:p-12">
           {/* Background decoration */}
-          <div className="absolute top-4 right-4 w-20 h-20 bg-primary/10 rounded-full"></div>
-          <div className="absolute bottom-4 left-4 w-16 h-16 bg-primary/5 rounded-full"></div>
+          <div className="post-cta-orbit absolute top-4 right-4 w-20 h-20 rounded-full border border-primary/25">
+            <div className="absolute -left-1 top-6 h-2.5 w-2.5 rounded-full bg-primary" />
+          </div>
+          <div className="absolute bottom-4 left-4 w-16 h-16 rounded-full bg-primary/10"></div>
           
           <div className="relative z-10">
             <div className="flex items-center justify-center mb-4">
@@ -273,11 +537,11 @@ export const BlogPost: React.FC = () => {
             
             <div className="flex items-center justify-center mb-8">
               <div className="flex items-center gap-6 text-sm">
-                <div className="flex items-center gap-2">
+                <div className="post-cta-stat flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-primary" />
                   <span>+300% de mandats</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="post-cta-stat flex items-center gap-2">
                   <Zap className="w-5 h-5 text-primary" />
                   <span>Automatisation complète</span>
                 </div>
@@ -287,7 +551,7 @@ export const BlogPost: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <a 
                 href="https://app.getflaire.fr"
-                className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-200 inline-flex items-center gap-2 group"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 font-extrabold text-secondary transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#ff9f1f] group"
               >
                 Essayer gratuitement
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -295,14 +559,14 @@ export const BlogPost: React.FC = () => {
               
               <a 
                 href="https://getflaire.fr"
-                className="border-2 border-white text-white hover:bg-white hover:text-secondary px-8 py-4 rounded-2xl font-semibold transition-all duration-200"
+                className="rounded-xl border border-white px-8 py-4 font-extrabold text-white transition-all duration-200 hover:bg-white hover:text-secondary"
               >
                 Découvrir GetFlaire
               </a>
             </div>
           </div>
         </div>
-        <div className="mt-12 pt-8 border-t border-gray-200">
+        <div className="mt-12 pt-8 border-t border-secondary/10">
           <Link
             to="/blog"
             className="btn-primary inline-flex items-center gap-2"
