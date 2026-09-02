@@ -1,4 +1,4 @@
-# Système de Sitemap Automatique pour leblog.getflaire.fr
+# Système de Sitemap Automatique pour blog.getflaire.fr
 
 Ce système génère et met à jour automatiquement le sitemap XML pour le blog GetFlaire.
 
@@ -117,9 +117,9 @@ npm run blog-sitemap:force
 
 Le sitemap généré inclut :
 
-- **Page d'accueil** : `https://leblog.getflaire.fr/` (priorité 1.0)
-- **Index du blog** : `https://leblog.getflaire.fr/blog` (priorité 0.9)
-- **Articles individuels** : `https://leblog.getflaire.fr/blog/slug-article` (priorité 0.8)
+- **Page d'accueil** : `https://blog.getflaire.fr/` (priorité 1.0)
+- **Index du blog** : `https://blog.getflaire.fr/blog` (priorité 0.9)
+- **Articles individuels** : `https://blog.getflaire.fr/blog/slug-article` (priorité 0.8)
 
 ### Métadonnées optimisées :
 - **lastmod** : Date de publication/modification de l'article

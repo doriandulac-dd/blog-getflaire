@@ -1,52 +1,27 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 
-export const Footer: React.FC = () => {
-  return (
-    <footer className="bg-secondary text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* Logo et description */}
-          <div className="lg:col-span-4">
-            <Link to="/" className="flex items-center mb-4">
-              <img 
-                src="/GetFlaire logo long hd 2000*500-min.png" 
-                alt="Logo GetFlaire" 
-                className="h-8 w-auto"
-              />
-            </Link>
-             <p className="text-[#b7c3d8] leading-relaxed max-w-md">
-              GetFlaire révolutionne la prospection immobilière en automatisant la veille du marché et en centralisant tous vos outils dans une seule plateforme intuitive.
-            </p>
-          </div>
+const productLinks = [
+  ['Fonctionnalités', 'https://getflaire.fr/#product'], ['Méthode', 'https://getflaire.fr/#method'], ['Tarifs', 'https://getflaire.fr/#pricing'], ['FAQ', 'https://getflaire.fr/#faq'], ['Contact', 'https://getflaire.fr/contact'], ['Affiliation', 'https://getflaire.fr/affiliation'],
+];
+const legalLinks = [
+  ['Mentions légales', 'https://getflaire.fr/mentions-legales'], ['CGU', 'https://getflaire.fr/cgu'], ['Confidentialité', 'https://getflaire.fr/politique-confidentialite'], ['Conditions', 'https://getflaire.fr/conditions'], ['Remboursements', 'https://getflaire.fr/remboursements'], ['Annulation', 'https://getflaire.fr/annulation'], ['RGPD', 'https://getflaire.fr/rgpd'],
+];
 
-          {/* Contact */}
-          <div className="lg:col-span-1">
-            <h3 className="text-lg font-extrabold mb-4">Contact</h3>
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-[#b7c3d8]">
-                <Mail className="w-4 h-4" />
-                <span>hello@getflaire.fr</span>
-              </li>
-              <li className="flex items-center gap-2 text-[#b7c3d8]">
-                <Phone className="w-4 h-4" />
-                <span>+33 1 23 45 67 89</span>
-              </li>
-              <li className="flex items-center gap-2 text-[#b7c3d8]">
-                <MapPin className="w-4 h-4" />
-                <span>Paris, France</span>
-              </li>
-            </ul>
-          </div>
+export const Footer: React.FC = () => (
+  <footer className="dark-grid border-t border-white/10 text-white">
+    <div className="site-container py-16 md:py-20">
+      <div className="grid gap-12 lg:grid-cols-[1.4fr_0.6fr_0.6fr]">
+        <div>
+          <Link to="/" aria-label="Accueil du blog GetFlaire"><img src="/GetFlaire logo long hd 2000*500-min.png" alt="GetFlaire" className="h-8 w-auto" /></Link>
+          <p className="mt-6 max-w-md text-sm leading-6 text-[#9DA8B7]">La pige immobilière nouvelle génération pour détecter, suivre et convertir davantage d’opportunités.</p>
+          <a href="https://app.getflaire.fr/login" className="text-link mt-7 text-primary">Essayer gratuitement <ArrowUpRight className="h-4 w-4" /></a>
         </div>
-
-        <div className="border-t border-tertiary/20 mt-8 pt-8 text-center">
-          <p className="text-[#b7c3d8]">
-            © {new Date().getFullYear()} GetFlaire. Tous droits réservés.
-          </p>
-        </div>
+        <div><h3 className="text-sm font-extrabold tracking-normal">GetFlaire</h3><ul className="mt-5 space-y-3 text-sm text-[#9DA8B7]">{productLinks.map(([label, href]) => <li key={label}><a href={href} className="transition-colors hover:text-primary">{label}</a></li>)}<li><Link to="/blog" className="transition-colors hover:text-primary">Blog</Link></li></ul></div>
+        <div><h3 className="text-sm font-extrabold tracking-normal">Informations</h3><ul className="mt-5 space-y-3 text-sm text-[#9DA8B7]">{legalLinks.map(([label, href]) => <li key={label}><a href={href} className="transition-colors hover:text-primary">{label}</a></li>)}</ul></div>
       </div>
-    </footer>
-  );
-};
+      <div className="mt-14 flex flex-col gap-3 border-t border-white/10 pt-7 text-xs text-[#7D8999] sm:flex-row sm:items-center sm:justify-between"><p>© {new Date().getFullYear()} GetFlaire. Tous droits réservés.</p><p>Hébergé en France · Données sécurisées</p></div>
+    </div>
+  </footer>
+);

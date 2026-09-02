@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { BlogPost } from '../types/blog';
 import { BlogService } from '../services/blogService';
 import { BlogCard } from './BlogCard';
@@ -12,123 +12,32 @@ export const BlogSection: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchLatestPosts = async () => {
-      try {
-        const data = await BlogService.getLatestPosts(3);
-        setPosts(data);
-      } catch (error) {
-        console.error('Erreur lors du chargement des articles:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLatestPosts();
+    BlogService.getLatestPosts(3).then(setPosts).catch((error) => console.error('Erreur lors du chargement des articles:', error)).finally(() => setLoading(false));
   }, []);
 
   useGSAP(() => {
     if (loading || prefersReducedMotion()) return;
-
-    const cards = gsap.utils.toArray<HTMLElement>('[data-blog-card]');
-
-    gsap.from('.blog-section-heading', {
-      y: 36,
-      autoAlpha: 0,
-      duration: 0.7,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top 76%',
-        toggleActions: 'play none none reverse',
-      },
-    });
-
-    ScrollTrigger.batch(cards, {
-      start: 'top 86%',
-      once: true,
-      onEnter: (batch) => {
-        gsap.fromTo(
-          batch,
-          { y: 42, autoAlpha: 0, rotateX: -8, filter: 'blur(10px)' },
-          { y: 0, autoAlpha: 1, rotateX: 0, filter: 'blur(0px)', duration: 0.7, ease: 'power3.out', stagger: 0.12 }
-        );
-      },
-    });
-
-    return () => ScrollTrigger.refresh();
+    gsap.from('.section-reveal', { y: 24, autoAlpha: 0, duration: 0.55, stagger: 0.08, ease: 'power2.out', scrollTrigger: { trigger: sectionRef.current, start: 'top 78%', once: true } });
+    ScrollTrigger.batch('[data-blog-card]', { start: 'top 88%', once: true, onEnter: (batch) => gsap.from(batch, { y: 26, autoAlpha: 0, duration: 0.55, stagger: 0.08, ease: 'power2.out' }) });
   }, { scope: sectionRef, dependencies: [loading, posts.length], revertOnUpdate: true });
 
-  if (loading) {
-    return (
-      <section className="editorial-shell py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-black text-secondary mb-4">
-              Blog GetFlaire
-            </h2>
-            <p className="text-xl text-tertiary max-w-3xl mx-auto">
-              Découvrez nos derniers articles sur la prospection immobilière.
-            </p>
+  return (
+    <section ref={sectionRef} className="bg-white py-24 md:py-32">
+      <div className="site-container">
+        <div className="section-reveal flex flex-col gap-8 border-b border-[var(--flaire-line)] pb-10 md:flex-row md:items-end md:justify-between">
+          <div>
+            <span className="eyebrow">Le terrain évolue</span>
+            <h2 className="mt-5 max-w-3xl text-[clamp(2.6rem,5vw,4.8rem)] font-extrabold leading-[0.96] text-secondary">Conseils et actualités immobilières.</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="card overflow-hidden animate-pulse">
-                <div className="aspect-video bg-tertiary/20"></div>
-                <div className="p-6">
-                  <div className="h-4 bg-tertiary/20 rounded mb-3"></div>
-                  <div className="h-6 bg-tertiary/20 rounded mb-3"></div>
-                  <div className="h-4 bg-tertiary/20 rounded w-3/4"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-    return (
-    <section ref={sectionRef} className="editorial-shell py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="blog-section-heading mx-auto mb-14 max-w-4xl text-center">
-          <span className="mb-4 inline-flex rounded-full border border-secondary/10 bg-white/80 px-4 py-2 text-sm font-extrabold uppercase tracking-wide text-primary shadow-sm">
-            Le radar des agences modernes
-          </span>
-          <h2 className="text-4xl font-black text-secondary mb-4 md:text-6xl">
-            Des idées qui accélèrent vos mandats
-          </h2>
-          <p className="text-lg text-tertiary md:text-xl">
-            Découvrez nos derniers articles sur la pige immobilière, l'investissement et les stratégies digitales des agences.
-          </p>
+          <Link to="/blog" className="text-link shrink-0">Tous les articles <ArrowUpRight className="h-4 w-4" /></Link>
         </div>
 
-        {posts.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 gap-6 mb-12 md:grid-cols-2 lg:grid-cols-3">
-              {posts.map((post) => (
-                <BlogCard key={post.id} post={post} />
-              ))}
-            </div>
-
-            <div className="text-center">
-              <Link
-                to="/blog"
-                className="btn-primary inline-flex items-center gap-2 px-8 py-4"
-              >
-                Voir tous les articles
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </>
+        {loading ? (
+          <div className="grid gap-8 pt-10 md:grid-cols-3"><div className="aspect-[4/3] animate-pulse bg-background" /><div className="aspect-[4/3] animate-pulse bg-background" /><div className="aspect-[4/3] animate-pulse bg-background" /></div>
+        ) : posts.length > 0 ? (
+          <div className="grid gap-8 pt-10 md:grid-cols-3 md:gap-0">{posts.map((post) => <BlogCard key={post.id} post={post} />)}</div>
         ) : (
-          <div className="text-center py-12">
-            <p className="text-tertiary text-lg mb-6">
-              Aucun article publié pour le moment.
-            </p>
-            <p className="text-tertiary/80">
-              Revenez bientôt pour découvrir nos premiers contenus !
-            </p>
-          </div>
+          <p className="py-16 text-tertiary">Aucun article publié pour le moment.</p>
         )}
       </div>
     </section>

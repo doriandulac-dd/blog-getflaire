@@ -9,7 +9,7 @@ import { BlogPost } from './components/BlogPost';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <Header />
         <main>
           <Routes>

@@ -1,22 +1,51 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { Calendar, User, ArrowLeft, Share2, ArrowRight, Zap, TrendingUp, MousePointer2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calendar,
+  Clock3,
+  Share2,
+  TrendingUp,
+  User,
+  Zap,
+} from 'lucide-react';
 import { BlogPost as BlogPostType } from '../types/blog';
 import { BlogService } from '../services/blogService';
 import { formatDate } from '../utils/dateUtils';
 import { gsap, prefersReducedMotion, ScrollTrigger, useGSAP } from '../lib/gsap';
 
+const BLOG_URL = 'https://blog.getflaire.fr';
+const DEFAULT_TITLE = 'Le blog GetFlaire — Pige immobilière et prospection';
+const DEFAULT_DESCRIPTION =
+  'Conseils terrain, méthodes et analyses pour aider les professionnels de l’immobilier à mieux prospecter.';
+
+const setMeta = (selector: string, attribute: 'name' | 'property', value: string, content: string) => {
+  let meta = document.head.querySelector<HTMLMetaElement>(selector);
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.setAttribute(attribute, value);
+    document.head.appendChild(meta);
+  }
+  meta.content = content;
+};
+
 export const BlogPost: React.FC = () => {
   const pageRef = useRef<HTMLDivElement>(null);
   const articleRef = useRef<HTMLElement>(null);
-  const [readingProgress, setReadingProgress] = useState(0);
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPostType | null>(null);
   const [previousPost, setPreviousPost] = useState<BlogPostType | null>(null);
   const [nextPost, setNextPost] = useState<BlogPostType | null>(null);
+  const [readingProgress, setReadingProgress] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const readingTime = useMemo(() => {
+    if (!post) return 0;
+    return Math.max(1, Math.ceil(post.content.trim().split(/\s+/).length / 220));
+  }, [post]);
 
   useEffect(() => {
     if (!slug) return;
@@ -25,8 +54,11 @@ export const BlogPost: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
+        setPost(null);
         setPreviousPost(null);
         setNextPost(null);
+        setReadingProgress(0);
+
         const data = await BlogService.getPostBySlug(slug);
         if (!data) {
           setError('Article non trouvé');
@@ -39,230 +71,121 @@ export const BlogPost: React.FC = () => {
           setPreviousPost(adjacentPosts.previousPost);
           setNextPost(adjacentPosts.nextPost);
         } catch (adjacentError) {
-          console.error('Erreur lors du chargement des articles voisins:', adjacentError);
+          console.error('Erreur lors du chargement des articles voisins :', adjacentError);
         }
-        
-        // Update page title
-        document.title = `${data.title} - GetFlaire Blog`;
-        
-        // Update meta description
-        const metaDescription = document.querySelector('meta[name="description"]');
-        if (metaDescription) {
-          metaDescription.setAttribute('content', data.excerpt);
-        } else {
-          const meta = document.createElement('meta');
-          meta.name = 'description';
-          meta.content = data.excerpt;
-          document.head.appendChild(meta);
-        }
-      } catch (err) {
-        setError('Erreur lors du chargement de l\'article');
-        console.error(err);
+      } catch (fetchError) {
+        setError('Erreur lors du chargement de l’article');
+        console.error(fetchError);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPost();
-
-    // Cleanup: Reset title on unmount
-    return () => {
-      document.title = 'GetFlaire';
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', 'GetFlaire - Blog');
-      }
-    };
+    void fetchPost();
   }, [slug]);
 
-  useGSAP(() => {
-    if (!post || loading) return;
-    const reduceMotion = prefersReducedMotion();
-    const mm = gsap.matchMedia();
+  useEffect(() => {
+    if (!post) return;
 
-    gsap.set('.reading-progress', { scaleX: 0, transformOrigin: 'left center' });
+    const canonicalUrl = `${BLOG_URL}/blog/${post.slug}`;
+    document.title = `${post.title} — Le blog GetFlaire`;
+    setMeta('meta[name="description"]', 'name', 'description', post.excerpt);
+    setMeta('meta[property="og:type"]', 'property', 'og:type', 'article');
+    setMeta('meta[property="og:url"]', 'property', 'og:url', canonicalUrl);
+    setMeta('meta[property="og:title"]', 'property', 'og:title', post.title);
+    setMeta('meta[property="og:description"]', 'property', 'og:description', post.excerpt);
+    setMeta('meta[name="twitter:url"]', 'name', 'twitter:url', canonicalUrl);
+    setMeta('meta[name="twitter:title"]', 'name', 'twitter:title', post.title);
+    setMeta('meta[name="twitter:description"]', 'name', 'twitter:description', post.excerpt);
 
-    ScrollTrigger.create({
-      trigger: articleRef.current,
-      start: 'top top',
-      end: 'bottom bottom',
-      onUpdate: (self) => {
-        const progress = Math.round(self.progress * 100);
-        gsap.set('.reading-progress', { scaleX: self.progress });
-        setReadingProgress(progress);
-      },
-    });
+    const canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    canonical?.setAttribute('href', canonicalUrl);
 
-    if (reduceMotion) return;
-
-    const intro = gsap.timeline({
-      defaults: { duration: 0.72, ease: 'power3.out' },
-    });
-
-    intro
-      .from('.post-back', { x: -18, autoAlpha: 0 })
-      .from('.post-category', { y: 18, autoAlpha: 0, stagger: 0.06 }, '-=0.38')
-      .from('.post-title-line', { yPercent: 105, rotateX: -20, autoAlpha: 0, stagger: 0.08 }, '-=0.36')
-      .from('.post-meta', { y: 24, autoAlpha: 0, filter: 'blur(10px)' }, '-=0.36')
-      .from('.post-share', { y: 18, autoAlpha: 0, stagger: 0.05 }, '-=0.34');
-
-    gsap.fromTo(
-      '.post-hero-mask',
-      { clipPath: 'inset(0 100% 0 0)' },
-      {
-        clipPath: 'inset(0 0% 0 0)',
-        duration: 1.05,
-        ease: 'power4.out',
-        scrollTrigger: {
-          trigger: '.post-hero-mask',
-          start: 'top 86%',
-          toggleActions: 'play none none reverse',
-        },
-      },
-    );
-
-    mm.add(
-      {
-        isDesktop: '(min-width: 768px)',
-        isMobile: '(max-width: 767px)',
-      },
-      ({ conditions }) => {
-        const { isDesktop } = conditions as { isDesktop: boolean };
-
-        gsap.to('.post-hero-image img', {
-          y: isDesktop ? 58 : 24,
-          scale: isDesktop ? 1.08 : 1.04,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: '.post-hero-mask',
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 1,
-          },
-        });
-
-        gsap.to('.reading-pill', {
-          y: isDesktop ? 18 : 0,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: articleRef.current,
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: 1,
-          },
-        });
-      }
-    );
-
-    ScrollTrigger.batch('.markdown-reveal', {
-      interval: 0.08,
-      batchMax: 4,
-      start: 'top 88%',
-      once: true,
-      onEnter: (batch) => {
-        gsap.fromTo(
-          batch,
-          { y: 28, autoAlpha: 0, filter: 'blur(10px)' },
-          {
-            y: 0,
-            autoAlpha: 1,
-            filter: 'blur(0px)',
-            duration: 0.68,
-            ease: 'power3.out',
-            stagger: 0.08,
-            overwrite: true,
-          }
-        );
-      },
-    });
-
-    gsap.from('.post-cta > *', {
-      y: 28,
-      autoAlpha: 0,
-      duration: 0.6,
-      ease: 'power3.out',
-      stagger: 0.08,
-      scrollTrigger: {
-        trigger: '.post-cta',
-        start: 'top 78%',
-        toggleActions: 'play none none reverse',
-      },
-    });
-
-    gsap.to('.post-cta-orbit', {
-      rotate: 360,
-      duration: 24,
-      ease: 'none',
-      repeat: -1,
-    });
-
-    gsap.from('.post-cta-stat', {
-      scale: 0.82,
-      autoAlpha: 0,
-      duration: 0.55,
-      ease: 'back.out(1.8)',
-      stagger: 0.09,
-      scrollTrigger: {
-        trigger: '.post-cta',
-        start: 'top 76%',
-        toggleActions: 'play none none reverse',
-      },
-    });
-
-    ScrollTrigger.batch('.post-adjacent-card', {
-      start: 'top 92%',
-      once: true,
-      onEnter: (batch) => {
-        gsap.fromTo(
-          batch,
-          { y: 24, autoAlpha: 0, filter: 'blur(10px)' },
-          {
-            y: 0,
-            autoAlpha: 1,
-            filter: 'blur(0px)',
-            duration: 0.62,
-            ease: 'power3.out',
-            stagger: 0.1,
-            overwrite: true,
-          }
-        );
-      },
-    });
+    const imageUrl = post.featured_image_url?.trim();
+    const ogImage = document.head.querySelector<HTMLMetaElement>('meta[property="og:image"]');
+    const twitterImage = document.head.querySelector<HTMLMetaElement>('meta[name="twitter:image"]');
+    if (imageUrl) {
+      setMeta('meta[property="og:image"]', 'property', 'og:image', imageUrl);
+      setMeta('meta[name="twitter:image"]', 'name', 'twitter:image', imageUrl);
+    } else {
+      ogImage?.remove();
+      twitterImage?.remove();
+    }
 
     return () => {
-      mm.revert();
-      ScrollTrigger.refresh();
+      document.title = DEFAULT_TITLE;
+      setMeta('meta[name="description"]', 'name', 'description', DEFAULT_DESCRIPTION);
+      setMeta('meta[property="og:type"]', 'property', 'og:type', 'website');
+      setMeta('meta[property="og:url"]', 'property', 'og:url', `${BLOG_URL}/`);
+      setMeta('meta[property="og:title"]', 'property', 'og:title', DEFAULT_TITLE);
+      setMeta('meta[property="og:description"]', 'property', 'og:description', DEFAULT_DESCRIPTION);
+      setMeta('meta[property="og:image"]', 'property', 'og:image', `${BLOG_URL}/og-getflaire-blog.png`);
+      setMeta('meta[name="twitter:url"]', 'name', 'twitter:url', `${BLOG_URL}/`);
+      setMeta('meta[name="twitter:title"]', 'name', 'twitter:title', DEFAULT_TITLE);
+      setMeta('meta[name="twitter:description"]', 'name', 'twitter:description', DEFAULT_DESCRIPTION);
+      setMeta('meta[name="twitter:image"]', 'name', 'twitter:image', `${BLOG_URL}/og-getflaire-blog.png`);
+      canonical?.setAttribute('href', `${BLOG_URL}/`);
     };
-  }, { scope: pageRef, dependencies: [post?.id, loading], revertOnUpdate: true });
+  }, [post]);
+
+  useGSAP(
+    () => {
+      if (!post || loading || !articleRef.current) return;
+
+      gsap.set('.reading-progress', { scaleX: 0, transformOrigin: 'left center' });
+      ScrollTrigger.create({
+        trigger: articleRef.current,
+        start: 'top top',
+        end: 'bottom bottom',
+        onUpdate: ({ progress }) => {
+          gsap.set('.reading-progress', { scaleX: progress });
+          setReadingProgress(Math.round(progress * 100));
+        },
+      });
+
+      if (prefersReducedMotion()) return;
+
+      gsap
+        .timeline({ defaults: { duration: 0.5, ease: 'power2.out' } })
+        .from('.post-intro', { y: 18, autoAlpha: 0, stagger: 0.07 })
+        .from('.post-hero', { y: 22, autoAlpha: 0 }, '-=0.2');
+
+      ScrollTrigger.batch('.markdown-reveal, .post-adjacent-card, .post-cta > *', {
+        start: 'top 90%',
+        once: true,
+        onEnter: (batch) =>
+          gsap.fromTo(
+            batch,
+            { y: 18, autoAlpha: 0 },
+            { y: 0, autoAlpha: 1, duration: 0.48, stagger: 0.06, ease: 'power2.out', overwrite: true },
+          ),
+      });
+    },
+    { scope: pageRef, dependencies: [post?.id, loading], revertOnUpdate: true },
+  );
 
   const sharePost = (platform: 'twitter' | 'linkedin' | 'facebook') => {
     if (!post) return;
-    
-    const url = window.location.href;
-    const text = `${post.title} - ${post.excerpt}`;
-    
+
+    const url = `${BLOG_URL}/blog/${post.slug}`;
+    const text = `${post.title} — ${post.excerpt}`;
     const shareUrls = {
       twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
     };
-    
-    window.open(shareUrls[platform], '_blank', 'width=600,height=400');
+
+    window.open(shareUrls[platform], '_blank', 'noopener,noreferrer,width=600,height=500');
   };
 
   if (loading) {
     return (
-      <div className="editorial-shell min-h-screen py-28">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded mb-6"></div>
-            <div className="aspect-video bg-gray-200 rounded-2xl mb-8"></div>
-            <div className="space-y-4">
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-white pt-28">
+        <div className="site-container animate-pulse py-16">
+          <div className="mb-6 h-4 w-32 rounded-sm bg-slate-200" />
+          <div className="mb-4 h-12 max-w-3xl rounded-sm bg-slate-200" />
+          <div className="mb-12 h-12 max-w-xl rounded-sm bg-slate-200" />
+          <div className="aspect-[16/8] rounded-md bg-slate-200" />
         </div>
       </div>
     );
@@ -270,312 +193,153 @@ export const BlogPost: React.FC = () => {
 
   if (error || !post) {
     return (
-      <div className="editorial-shell min-h-screen py-28">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            {error || 'Article non trouvé'}
-          </h1>
-          <p className="text-gray-600 mb-8">
-            L'article que vous recherchez n'existe pas ou a été supprimé.
+      <section className="dark-grid min-h-[70vh] bg-secondary pt-32 text-white">
+        <div className="site-container py-20 text-center">
+          <p className="eyebrow mb-5 text-primary">Le blog GetFlaire</p>
+          <h1 className="mb-4 text-4xl font-extrabold tracking-tight md:text-6xl">{error || 'Article non trouvé'}</h1>
+          <p className="mx-auto mb-8 max-w-xl text-white/65">
+            L’article que vous recherchez n’existe pas ou n’est plus disponible.
           </p>
-          <Link
-            to="/blog"
-            className="btn-primary inline-flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Retour au blog
+          <Link to="/blog" className="button-primary">
+            <ArrowLeft className="h-4 w-4" /> Retour au blog
           </Link>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div ref={pageRef} className="editorial-shell min-h-screen py-28">
-      <div className="fixed left-0 top-16 z-40 h-1 w-full bg-secondary/10">
+    <div ref={pageRef} className="min-h-screen bg-white">
+      <div className="fixed left-0 top-[72px] z-40 h-0.5 w-full bg-white/15">
         <div className="reading-progress h-full w-full origin-left scale-x-0 bg-primary" />
       </div>
 
-      <div className="reading-pill fixed right-4 top-24 z-40 hidden rounded-full border border-secondary/10 bg-white/90 px-3 py-2 text-xs font-extrabold text-secondary shadow-lg shadow-secondary/10 backdrop-blur md:flex md:items-center md:gap-2">
-        <MousePointer2 className="h-3.5 w-3.5 text-primary" />
-        <span>{readingProgress}% lu</span>
-      </div>
+      <article ref={articleRef}>
+        <header className="dark-grid bg-secondary pt-32 text-white">
+          <div className="site-container py-12 md:py-20">
+            <Link to="/blog" className="post-intro text-link mb-10 inline-flex items-center gap-2 text-sm text-white/70">
+              <ArrowLeft className="h-4 w-4" /> Retour au blog
+            </Link>
 
-      <div className="max-w-5xl mx-auto px-4">
-        <Link
-          to="/blog"
-          className="post-back mb-8 inline-flex items-center gap-2 font-extrabold text-primary transition-colors hover:text-[#ff930f]"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour au blog
-        </Link>
-
-        <article ref={articleRef}>
-          <header className="mb-10">
             {post.categories && post.categories.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="post-intro mb-5 flex flex-wrap gap-2">
                 {post.categories.map((category) => (
-                  <span
-                    key={category.id}
-                    className="post-category rounded-full bg-primary/15 px-3 py-1 text-sm font-extrabold uppercase tracking-wide text-secondary"
-                  >
+                  <span key={category.id} className="border border-primary/60 px-2.5 py-1 text-xs font-bold uppercase tracking-[0.16em] text-primary">
                     {category.name}
                   </span>
                 ))}
               </div>
             )}
 
-            <h1 className="max-w-4xl overflow-hidden text-5xl font-black leading-tight text-secondary mb-6 md:text-7xl">
-              {post.title.split(' ').map((word, index) => (
-                <span key={`${word}-${index}`} className="inline-block overflow-hidden pr-3 pb-2">
-                  <span className="post-title-line inline-block">{word}</span>
-                </span>
-              ))}
+            <h1 className="post-intro max-w-5xl text-4xl font-extrabold leading-[1.04] tracking-[-0.045em] sm:text-5xl md:text-7xl">
+              {post.title}
             </h1>
 
-            <div className="post-meta flex flex-col gap-4 text-tertiary mb-6 sm:flex-row sm:items-center">
+            <div className="post-intro mt-9 flex flex-wrap items-center gap-x-6 gap-y-4 border-t border-white/15 pt-6 text-sm text-white/65">
               {post.author && (
                 <div className="flex items-center gap-3">
-                  {post.author.avatar_url && (
-                    <img
-                      src={post.author.avatar_url}
-                      alt={post.author.name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
+                  {post.author.avatar_url ? (
+                    <img src={post.author.avatar_url} alt="" className="h-9 w-9 rounded-full object-cover" />
+                  ) : (
+                    <User className="h-4 w-4" />
                   )}
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      <span className="font-bold">{post.author.name}</span>
-                    </div>
-                    {post.author.bio && (
-                      <p className="text-sm text-tertiary max-w-md">
-                        {post.author.bio}
-                      </p>
-                    )}
-                  </div>
+                  <span className="font-semibold text-white">{post.author.name}</span>
                 </div>
               )}
-              
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span>{formatDate(post.published_at)}</span>
-              </div>
+              <span className="inline-flex items-center gap-2"><Calendar className="h-4 w-4" />{formatDate(post.published_at)}</span>
+              <span className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4" />{readingTime} min de lecture</span>
+              <span className="ml-auto hidden font-semibold text-primary sm:inline">{readingProgress}% lu</span>
             </div>
 
-            <div className="post-share flex items-center gap-4 mb-8">
-              <span className="text-sm font-extrabold text-secondary">Partager :</span>
-              <div className="flex gap-2">
+            <div className="post-intro mt-6 flex items-center gap-2" aria-label="Partager cet article">
+              <span className="mr-2 text-xs font-bold uppercase tracking-[0.14em] text-white/50">Partager</span>
+              {(['twitter', 'linkedin', 'facebook'] as const).map((platform) => (
                 <button
-                  onClick={() => sharePost('twitter')}
-                  className="rounded-lg p-2 text-tertiary transition-colors hover:bg-primary/10 hover:text-primary"
-                  aria-label="Partager sur Twitter"
+                  key={platform}
+                  type="button"
+                  onClick={() => sharePost(platform)}
+                  className="inline-flex h-10 items-center gap-2 border border-white/20 px-3 text-xs font-semibold capitalize text-white transition hover:-translate-y-0.5 hover:border-primary hover:text-primary"
+                  aria-label={`Partager sur ${platform}`}
                 >
-                  <Share2 className="w-4 h-4" />
+                  <Share2 className="h-3.5 w-3.5" /> {platform === 'twitter' ? 'X' : platform}
                 </button>
-                <button
-                  onClick={() => sharePost('linkedin')}
-                  className="rounded-lg p-2 text-tertiary transition-colors hover:bg-primary/10 hover:text-primary"
-                  aria-label="Partager sur LinkedIn"
-                >
-                  <Share2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => sharePost('facebook')}
-                  className="rounded-lg p-2 text-tertiary transition-colors hover:bg-primary/10 hover:text-primary"
-                  aria-label="Partager sur Facebook"
-                >
-                  <Share2 className="w-4 h-4" />
-                </button>
-              </div>
+              ))}
             </div>
-          </header>
+          </div>
+        </header>
 
+        <div className="site-container">
           {post.featured_image_url && (
-            <div className="post-hero-mask aspect-video mb-10 overflow-hidden rounded-xl shadow-2xl shadow-secondary/15">
-              <div className="post-hero-image h-full w-full overflow-hidden">
-              <img
-                src={post.featured_image_url}
-                alt={post.title}
-                className="w-full h-[112%] object-cover"
-              />
-              </div>
-            </div>
+            <figure className="post-hero -mt-px border-x border-b border-[var(--flaire-line)] bg-white p-2 md:p-3">
+              <img src={post.featured_image_url} alt={post.title} className="aspect-[16/8] w-full rounded-md object-cover" />
+            </figure>
           )}
 
-          <div className="prose prose-lg max-w-none rounded-xl border border-secondary/10 bg-white/80 p-6 shadow-sm md:p-10">
+          <div className="mx-auto max-w-[780px] py-14 md:py-20">
             <ReactMarkdown
               components={{
-                h1: ({ children }) => <h1 className="markdown-reveal text-3xl font-black text-secondary mt-8 mb-4">{children}</h1>,
-                h2: ({ children }) => <h2 className="markdown-reveal text-2xl font-black text-secondary mt-6 mb-3">{children}</h2>,
-                h3: ({ children }) => <h3 className="markdown-reveal text-xl font-bold text-secondary mt-5 mb-2">{children}</h3>,
-                p: ({ children }) => <p className="markdown-reveal text-[#33415c] leading-relaxed mb-4">{children}</p>,
-                ul: ({ children }) => <ul className="markdown-reveal list-disc pl-6 mb-4 space-y-2">{children}</ul>,
-                ol: ({ children }) => <ol className="markdown-reveal list-decimal pl-6 mb-4 space-y-2">{children}</ol>,
-                li: ({ children }) => <li className="text-[#33415c]">{children}</li>,
-                blockquote: ({ children }) => (
-                  <blockquote className="markdown-reveal border-l-4 border-primary pl-4 py-2 my-6 bg-primary/10 rounded-r-lg">
-                    <div className="text-[#33415c] italic">{children}</div>
-                  </blockquote>
+                h1: ({ children }) => <h1 className="markdown-reveal mb-5 mt-12 text-3xl font-extrabold tracking-tight text-secondary">{children}</h1>,
+                h2: ({ children }) => <h2 className="markdown-reveal mb-4 mt-12 text-3xl font-extrabold tracking-tight text-secondary md:text-4xl">{children}</h2>,
+                h3: ({ children }) => <h3 className="markdown-reveal mb-3 mt-9 text-2xl font-bold text-secondary">{children}</h3>,
+                p: ({ children }) => <p className="markdown-reveal mb-6 text-[1.075rem] leading-8 text-slate-700">{children}</p>,
+                ul: ({ children }) => <ul className="markdown-reveal mb-7 list-disc space-y-2 pl-6 text-[1.075rem] leading-8 text-slate-700 marker:text-primary">{children}</ul>,
+                ol: ({ children }) => <ol className="markdown-reveal mb-7 list-decimal space-y-2 pl-6 text-[1.075rem] leading-8 text-slate-700 marker:font-bold marker:text-primary">{children}</ol>,
+                blockquote: ({ children }) => <blockquote className="markdown-reveal my-10 border-l-4 border-primary bg-[#FFF8EC] px-6 py-5 text-lg italic leading-8 text-secondary">{children}</blockquote>,
+                a: ({ href, children }) => <a href={href} className="font-semibold text-secondary underline decoration-primary decoration-2 underline-offset-4 hover:text-primary">{children}</a>,
+                code: ({ children, className }) => className ? (
+                  <code className="markdown-reveal my-8 block overflow-x-auto rounded-md bg-secondary p-5 font-mono text-sm text-slate-100">{children}</code>
+                ) : (
+                  <code className="rounded-sm bg-slate-100 px-1.5 py-0.5 font-mono text-sm text-secondary">{children}</code>
                 ),
-                code: ({ children, className }) => {
-                  const isInline = !className;
-                  return isInline ? (
-                    <code className="bg-secondary/10 text-secondary px-2 py-1 rounded text-sm font-mono">
-                      {children}
-                    </code>
-                  ) : (
-                    <code className="markdown-reveal block bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm font-mono">
-                      {children}
-                    </code>
-                  );
-                },
+                img: ({ src, alt }) => <img src={src} alt={alt || ''} className="markdown-reveal my-10 w-full rounded-md border border-[var(--flaire-line)]" loading="lazy" />,
                 strong: ({ children }) => <strong className="font-bold text-secondary">{children}</strong>,
-                em: ({ children }) => <em className="italic text-[#33415c]">{children}</em>
+                hr: () => <hr className="markdown-reveal my-12 border-[var(--flaire-line)]" />,
+                table: ({ children }) => <div className="markdown-reveal my-8 overflow-x-auto"><table className="w-full border-collapse text-left text-sm">{children}</table></div>,
+                th: ({ children }) => <th className="border border-[var(--flaire-line)] bg-slate-50 p-3 font-bold text-secondary">{children}</th>,
+                td: ({ children }) => <td className="border border-[var(--flaire-line)] p-3 text-slate-700">{children}</td>,
               }}
             >
               {post.content}
             </ReactMarkdown>
           </div>
-        </article>
+        </div>
+      </article>
 
-        {(previousPost || nextPost) && (
-          <nav className="post-adjacent-nav my-14 grid grid-cols-1 gap-4 md:grid-cols-2" aria-label="Navigation entre articles">
-            {previousPost ? (
-              <Link
-                to={`/blog/${previousPost.slug}`}
-                className="post-adjacent-card group overflow-hidden rounded-xl border border-secondary/10 bg-white/85 text-left shadow-lg shadow-secondary/5 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10"
-              >
-                {previousPost.featured_image_url ? (
-                  <div className="aspect-video overflow-hidden">
-                    <img
-                      src={previousPost.featured_image_url}
-                      alt={previousPost.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                ) : (
-                  <div className="aspect-video bg-primary/10" />
-                )}
-                <div className="p-6">
-                  <span className="mb-4 inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-wide text-primary">
-                    <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                    Article précédent
-                  </span>
-                  <h3 className="mb-3 text-2xl font-black leading-tight text-secondary">
-                    {previousPost.title}
-                  </h3>
-                  <p className="line-clamp-2 text-sm leading-relaxed text-tertiary">
-                    {previousPost.excerpt}
-                  </p>
-                </div>
-              </Link>
-            ) : (
-              <div className="hidden md:block" />
-            )}
+      {(previousPost || nextPost) && (
+        <nav className="site-container grid border-y border-[var(--flaire-line)] md:grid-cols-2" aria-label="Navigation entre articles">
+          {previousPost ? (
+            <Link to={`/blog/${previousPost.slug}`} className="post-adjacent-card group border-b border-[var(--flaire-line)] py-8 md:border-b-0 md:border-r md:pr-10">
+              <span className="mb-3 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-tertiary"><ArrowLeft className="h-4 w-4" /> Article précédent</span>
+              <h2 className="text-xl font-bold leading-tight text-secondary transition-colors group-hover:text-primary md:text-2xl">{previousPost.title}</h2>
+            </Link>
+          ) : <div />}
+          {nextPost ? (
+            <Link to={`/blog/${nextPost.slug}`} className="post-adjacent-card group py-8 md:pl-10 md:text-right">
+              <span className="mb-3 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-tertiary">Article suivant <ArrowRight className="h-4 w-4" /></span>
+              <h2 className="text-xl font-bold leading-tight text-secondary transition-colors group-hover:text-primary md:text-2xl">{nextPost.title}</h2>
+            </Link>
+          ) : <div />}
+        </nav>
+      )}
 
-            {nextPost ? (
-              <Link
-                to={`/blog/${nextPost.slug}`}
-                className="post-adjacent-card group overflow-hidden rounded-xl border border-secondary/10 bg-white/85 text-left shadow-lg shadow-secondary/5 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 md:text-right"
-              >
-                {nextPost.featured_image_url ? (
-                  <div className="aspect-video overflow-hidden">
-                    <img
-                      src={nextPost.featured_image_url}
-                      alt={nextPost.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                ) : (
-                  <div className="aspect-video bg-primary/10" />
-                )}
-                <div className="p-6">
-                  <span className="mb-4 inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-wide text-primary md:justify-end">
-                    Article suivant
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </span>
-                  <h3 className="mb-3 text-2xl font-black leading-tight text-secondary">
-                    {nextPost.title}
-                  </h3>
-                  <p className="line-clamp-2 text-sm leading-relaxed text-tertiary">
-                    {nextPost.excerpt}
-                  </p>
-                </div>
-              </Link>
-            ) : (
-              <div className="hidden md:block" />
-            )}
-          </nav>
-        )}
-
-        {/* CTA Section */}
-        <div className="post-cta relative my-16 overflow-hidden rounded-xl bg-gradient-to-br from-secondary via-[#182640] to-[#0f1728] p-8 text-center text-white shadow-2xl shadow-secondary/20 md:p-12">
-          {/* Background decoration */}
-          <div className="post-cta-orbit absolute top-4 right-4 w-20 h-20 rounded-full border border-primary/25">
-            <div className="absolute -left-1 top-6 h-2.5 w-2.5 rounded-full bg-primary" />
-          </div>
-          <div className="absolute bottom-4 left-4 w-16 h-16 rounded-full bg-primary/10"></div>
-          
-          <div className="relative z-10">
-            <div className="flex items-center justify-center mb-4">
-              <img 
-                src="/GetFlaire logo long hd 2000*500-min.png" 
-                alt="Logo GetFlaire" 
-                className="h-8 w-auto"
-              />
+      <section className="site-container py-16 md:py-24">
+        <div className="post-cta gold-grid rounded-md border border-primary/70 bg-primary p-7 text-secondary md:p-12">
+          <div className="max-w-4xl">
+            <p className="eyebrow mb-5">Passez de la lecture à l’action</p>
+            <h2 className="max-w-3xl text-3xl font-extrabold leading-tight tracking-[-0.035em] md:text-5xl">Prêt à transformer votre prospection immobilière ?</h2>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-secondary/75 md:text-lg">GetFlaire vous aide à gagner du temps et à signer plus de mandats grâce à une pige immobilière structurée et intelligente.</p>
+            <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold">
+              <span className="inline-flex items-center gap-2"><TrendingUp className="h-5 w-5" /> +300 % de mandats</span>
+              <span className="inline-flex items-center gap-2"><Zap className="h-5 w-5" /> Automatisation complète</span>
             </div>
-            
-            <h3 className="text-3xl md:text-4xl font-bold mb-4">
-              Prêt à transformer votre prospection ?
-            </h3>
-            
-            <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Découvrez comment GetFlaire peut vous aider à gagner du temps et à signer plus de mandats 
-              grâce à notre pige immobilière intelligente.
-            </p>
-            
-            <div className="flex items-center justify-center mb-8">
-              <div className="flex items-center gap-6 text-sm">
-                <div className="post-cta-stat flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                  <span>+300% de mandats</span>
-                </div>
-                <div className="post-cta-stat flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-primary" />
-                  <span>Automatisation complète</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a 
-                href="https://app.getflaire.fr"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 font-extrabold text-secondary transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#ff9f1f] group"
-              >
-                Essayer gratuitement
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </a>
-              
-              <a 
-                href="https://getflaire.fr"
-                className="rounded-xl border border-white px-8 py-4 font-extrabold text-white transition-all duration-200 hover:bg-white hover:text-secondary"
-              >
-                Découvrir GetFlaire
-              </a>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <a href="https://app.getflaire.fr" className="button-secondary">Essayer gratuitement <ArrowRight className="h-4 w-4" /></a>
+              <a href="https://getflaire.fr" className="inline-flex min-h-12 items-center justify-center border border-secondary px-6 text-sm font-bold transition hover:bg-secondary hover:text-white">Découvrir GetFlaire</a>
             </div>
           </div>
         </div>
-        <div className="mt-12 pt-8 border-t border-secondary/10">
-          <Link
-            to="/blog"
-            className="btn-primary inline-flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Retour au blog
-          </Link>
-        </div>
-      </div>
+        <Link to="/blog" className="text-link mt-10 inline-flex items-center gap-2 text-sm font-semibold text-secondary"><ArrowLeft className="h-4 w-4" /> Retour à tous les articles</Link>
+      </section>
     </div>
   );
 };

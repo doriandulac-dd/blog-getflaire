@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration pour le blog
-const BLOG_SITE_URL = 'https://leblog.getflaire.fr';
+const BLOG_SITE_URL = 'https://blog.getflaire.fr';
 const STRICT_MODE = process.env.SITEMAP_STRICT === 'true';
 
 // URLs statiques du blog
@@ -28,7 +28,7 @@ const staticUrls = [
 
 // Génération du sitemap pour le blog
 async function generateBlogSitemap() {
-  console.log('🚀 Génération du sitemap pour leblog.getflaire.fr...');
+  console.log('🚀 Génération du sitemap pour blog.getflaire.fr...');
   
   let blogUrls = [];
   

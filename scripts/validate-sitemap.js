@@ -98,7 +98,7 @@ async function runValidation() {
   
   if (isValid && !localOnly) {
     console.log('\n🌐 Test d\'accessibilité...');
-    const isAccessible = await testSitemapAccess('https://leblog.getflaire.fr/sitemap.xml');
+    const isAccessible = await testSitemapAccess('https://blog.getflaire.fr/sitemap.xml');
     
     if (isAccessible) {
       console.log('✅ Sitemap accessible publiquement');

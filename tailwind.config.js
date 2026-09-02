@@ -5,14 +5,14 @@ export default {
     extend: {
       colors: {
         primary: '#FFB23F',
-        secondary: '#1B263B',
-        tertiary: '#778DA9',
-        background: '#F7F8FA',
+        secondary: '#101722',
+        tertiary: '#5F6C7C',
+        background: '#F4F6F8',
         surface: '#FFFFFF',
       },
       fontFamily: {
-        sans: ['Manrope', 'system-ui', 'sans-serif'],
-        display: ['Space Grotesk', 'Manrope', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       spacing: {
         '12': '3rem',

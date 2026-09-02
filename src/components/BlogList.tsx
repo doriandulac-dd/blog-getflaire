@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import { BlogPost } from '../types/blog';
 import { BlogService } from '../services/blogService';
 import { BlogCard } from './BlogCard';
-import { Loader2 } from 'lucide-react';
 import { gsap, prefersReducedMotion, ScrollTrigger, useGSAP } from '../lib/gsap';
 
 export const BlogList: React.FC = () => {
@@ -13,94 +13,23 @@ export const BlogList: React.FC = () => {
   const [featuredPost, ...regularPosts] = useMemo(() => posts, [posts]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setLoading(true);
-        const data = await BlogService.getAllPosts();
-        setPosts(data);
-      } catch (err) {
-        setError('Erreur lors du chargement des articles');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPosts();
+    BlogService.getAllPosts().then(setPosts).catch((err) => { setError('Erreur lors du chargement des articles'); console.error(err); }).finally(() => setLoading(false));
   }, []);
 
   useGSAP(() => {
     if (loading || error || prefersReducedMotion()) return;
-
-    gsap.from('.featured-post', {
-      y: 42,
-      autoAlpha: 0,
-      scale: 0.98,
-      filter: 'blur(12px)',
-      duration: 0.8,
-      ease: 'power3.out',
-    });
-
-    ScrollTrigger.batch('.post-grid [data-blog-card]', {
-      start: 'top 86%',
-      once: true,
-      onEnter: (batch) => {
-        gsap.fromTo(
-          batch,
-          { y: 46, autoAlpha: 0, filter: 'blur(10px)' },
-          { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.72, ease: 'power3.out', stagger: 0.1 }
-        );
-      },
-    });
-
-    return () => ScrollTrigger.refresh();
+    gsap.from('.featured-post', { y: 28, autoAlpha: 0, duration: 0.6, ease: 'power2.out' });
+    ScrollTrigger.batch('.post-grid [data-blog-card]', { start: 'top 90%', once: true, onEnter: (batch) => gsap.from(batch, { y: 24, autoAlpha: 0, duration: 0.5, stagger: 0.06, ease: 'power2.out' }) });
   }, { scope: listRef, dependencies: [loading, error, posts.length], revertOnUpdate: true });
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-red-500 mb-4">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="btn-primary"
-        >
-          Réessayer
-        </button>
-      </div>
-    );
-  }
-
-  if (posts.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-tertiary text-lg">Aucun article publié pour le moment.</p>
-      </div>
-    );
-  }
+  if (loading) return <div className="flex items-center justify-center py-24"><Loader2 className="h-7 w-7 animate-spin text-primary" /><span className="sr-only">Chargement des articles</span></div>;
+  if (error) return <div className="border border-red-200 bg-red-50 px-6 py-12 text-center"><p className="text-red-700">{error}</p><button onClick={() => window.location.reload()} className="button-primary mt-5">Réessayer</button></div>;
+  if (!posts.length) return <p className="border border-[var(--flaire-line)] py-16 text-center text-tertiary">Aucun article publié pour le moment.</p>;
 
   return (
-    <div ref={listRef} className="space-y-8">
-      {featuredPost && (
-        <div className="featured-post">
-          <BlogCard post={featuredPost} featured />
-        </div>
-      )}
-
-      {regularPosts.length > 0 && (
-        <div className="post-grid grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {regularPosts.map((post) => (
-            <BlogCard key={post.id} post={post} />
-          ))}
-        </div>
-      )}
+    <div ref={listRef}>
+      {featuredPost && <div className="featured-post"><BlogCard post={featuredPost} featured /></div>}
+      {regularPosts.length > 0 && <div className="post-grid mt-16 grid gap-8 md:grid-cols-2 md:gap-y-14 lg:grid-cols-3 lg:gap-x-0">{regularPosts.map((post) => <BlogCard key={post.id} post={post} />)}</div>}
     </div>
   );
 };

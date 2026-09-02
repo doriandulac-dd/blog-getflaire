@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Clock3, User } from 'lucide-react';
+import { ArrowUpRight, CalendarDays, Clock3 } from 'lucide-react';
 import { BlogPost } from '../types/blog';
 import { formatDate } from '../utils/dateUtils';
 
@@ -9,67 +9,55 @@ interface BlogCardProps {
   featured?: boolean;
 }
 
+const estimateReadingTime = (content: string) => Math.max(1, Math.ceil(content.trim().split(/\s+/).length / 220));
+
 export const BlogCard: React.FC<BlogCardProps> = ({ post, featured = false }) => {
-  return (
-    <article className={`blog-card group rounded-xl ${featured ? 'lg:grid lg:grid-cols-[1.08fr_0.92fr]' : ''}`} data-blog-card>
-      {post.featured_image_url && (
-        <Link to={`/blog/${post.slug}`} className={`block overflow-hidden ${featured ? 'min-h-full' : 'aspect-video'}`}>
-          <img
-            src={post.featured_image_url}
-            alt={post.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
+  const category = post.categories?.[0];
+  const articleUrl = `/blog/${post.slug}`;
+
+  if (featured) {
+    return (
+      <article className="editorial-card group grid overflow-hidden lg:grid-cols-[1.12fr_0.88fr]" data-blog-card>
+        <Link to={articleUrl} className="block min-h-[300px] overflow-hidden bg-background lg:min-h-[470px]">
+          {post.featured_image_url ? (
+            <img src={post.featured_image_url} alt={post.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]" />
+          ) : <div className="dark-grid h-full w-full" />}
         </Link>
-      )}
-      
-      <div className={`relative z-10 flex h-full flex-col ${featured ? 'p-7 md:p-10' : 'p-6'}`}>
-        {post.categories && post.categories.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-3">
-            {post.categories.map((category) => (
-              <span
-                key={category.id}
-                className="rounded-full bg-primary/15 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-secondary"
-              >
-                {category.name}
-              </span>
-            ))}
+        <div className="flex flex-col justify-between p-7 md:p-10 lg:p-12">
+          <div>
+            <div className="flex items-center justify-between gap-4">
+              <span className="bg-secondary px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white">À la une</span>
+              <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#9B681E]">{category?.name || 'Blog'}</span>
+            </div>
+            <h2 className="mt-10 text-3xl font-extrabold leading-[1.02] text-secondary md:text-5xl">{post.title}</h2>
+            <p className="mt-6 line-clamp-4 text-base leading-7 text-tertiary">{post.excerpt}</p>
           </div>
-        )}
-
-        <h2 className={`${featured ? 'text-3xl md:text-4xl' : 'text-xl'} mb-3 font-black leading-tight text-secondary`}>
-          <Link to={`/blog/${post.slug}`} className="animated-underline">
-            {post.title}
-          </Link>
-        </h2>
-
-        <p className={`${featured ? 'text-base md:text-lg' : 'text-sm'} mb-5 line-clamp-3 leading-relaxed text-tertiary`}>
-          {post.excerpt}
-        </p>
-
-        <div className="mb-5 flex flex-wrap items-center gap-3 text-sm font-bold text-tertiary">
-            {post.author && (
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                <span>{post.author.name}</span>
-              </div>
-            )}
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <span>{formatDate(post.published_at)}</span>
+          <div className="mt-10">
+            <div className="flex flex-wrap gap-5 border-t border-secondary/10 pt-5 text-xs font-medium text-tertiary">
+              <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-[#9B681E]" />{formatDate(post.published_at)}</span>
+              <span className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-[#9B681E]" />{estimateReadingTime(post.content)} min</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock3 className="w-4 h-4" />
-              <span>Lecture rapide</span>
-            </div>
+            <Link to={articleUrl} className="text-link mt-7">Lire l’article <ArrowUpRight className="h-4 w-4" /></Link>
+          </div>
         </div>
+      </article>
+    );
+  }
 
-        <Link
-          to={`/blog/${post.slug}`}
-          className="mt-auto inline-flex items-center gap-2 font-extrabold text-primary transition-colors hover:text-[#ff930f]"
-        >
-          Lire la suite
-          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-        </Link>
+  return (
+    <article className="group flex h-full flex-col border-b border-[var(--flaire-line)] bg-white px-0 pb-8 md:border-b-0 md:border-r md:px-8 md:first:pl-0 md:last:border-r-0 md:last:pr-0" data-blog-card>
+      <Link to={articleUrl} className="relative block aspect-[4/3] overflow-hidden bg-background">
+        {post.featured_image_url ? <img src={post.featured_image_url} alt={post.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" /> : <div className="dark-grid h-full w-full" />}
+        <span className="absolute left-4 top-4 bg-secondary px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white">{category?.name || 'Blog'}</span>
+      </Link>
+      <div className="flex flex-1 flex-col pt-5">
+        <div className="flex flex-wrap gap-4 text-xs font-medium text-tertiary">
+          <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4" />{formatDate(post.published_at)}</span>
+          <span className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4" />{estimateReadingTime(post.content)} min</span>
+        </div>
+        <h2 className="mt-5 text-xl font-extrabold leading-tight text-secondary md:text-2xl"><Link to={articleUrl} className="transition-colors group-hover:text-[#9B681E]">{post.title}</Link></h2>
+        <p className="mt-4 line-clamp-3 text-sm leading-6 text-tertiary">{post.excerpt}</p>
+        <Link to={articleUrl} className="text-link mt-6 self-start">Lire l’article <ArrowUpRight className="h-4 w-4" /></Link>
       </div>
     </article>
   );
