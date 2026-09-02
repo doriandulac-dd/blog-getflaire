@@ -94,10 +94,11 @@ async function testSitemapAccess(sitemapUrl) {
 // Main validation function
 async function runValidation() {
   const isValid = await validateSitemap();
+  const localOnly = process.argv.includes('--local-only');
   
-  if (isValid) {
+  if (isValid && !localOnly) {
     console.log('\n🌐 Test d\'accessibilité...');
-    const isAccessible = await testSitemapAccess('https://getflaire.fr/sitemap.xml');
+    const isAccessible = await testSitemapAccess('https://leblog.getflaire.fr/sitemap.xml');
     
     if (isAccessible) {
       console.log('✅ Sitemap accessible publiquement');
@@ -110,7 +111,12 @@ async function runValidation() {
 }
 
 if (process.argv[1] === __filename) {
-  runValidation();
+  runValidation().then(isValid => {
+    if (!isValid) process.exitCode = 1;
+  }).catch(error => {
+    console.error('❌ Validation impossible:', error.message);
+    process.exitCode = 1;
+  });
 }
 
 export { validateSitemap, testSitemapAccess, runValidation };

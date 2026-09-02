@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/generate-sitemap.js",
+    "prebuild": "npm run blog-sitemap",
     "build": "vite build",
     "postbuild": "node scripts/validate-sitemap.js",
-    "sitemap": "node scripts/generate-sitemap.js",
+    "sitemap": "npm run blog-sitemap",
     "sitemap:test": "node scripts/test-sitemap.js",
     "sitemap:validate": "node scripts/validate-sitemap.js",
     "blog-sitemap": "node scripts/generate-blog-sitemap.js",

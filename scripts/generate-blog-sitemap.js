@@ -10,18 +10,17 @@ const __dirname = path.dirname(__filename);
 
 // Configuration pour le blog
 const BLOG_SITE_URL = 'https://leblog.getflaire.fr';
+const STRICT_MODE = process.env.SITEMAP_STRICT === 'true';
 
 // URLs statiques du blog
 const staticUrls = [
   {
     loc: `${BLOG_SITE_URL}/`,
-    lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'daily',
     priority: '1.0'
   },
   {
     loc: `${BLOG_SITE_URL}/blog`,
-    lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'daily',
     priority: '0.9'
   }
@@ -41,6 +40,9 @@ async function generateBlogSitemap() {
     const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
+      if (STRICT_MODE) {
+        throw new Error('Variables d\'environnement Supabase manquantes');
+      }
       console.warn('⚠️  Variables d\'environnement Supabase manquantes');
       console.warn('Génération du sitemap avec les URLs statiques uniquement');
     } else {
@@ -79,6 +81,9 @@ async function generateBlogSitemap() {
       }) || [];
     }
   } catch (error) {
+    if (STRICT_MODE) {
+      throw error;
+    }
     console.warn('⚠️  Erreur lors de la récupération des articles:', error.message);
     console.warn('Génération du sitemap avec les URLs statiques uniquement');
     blogUrls = [];
@@ -107,6 +112,8 @@ async function generateBlogSitemap() {
   // Générer un index de sitemap si nécessaire (plus de 1000 URLs)
   if (allUrls.length > 1000) {
     generateSitemapIndex(allUrls);
+  } else {
+    removeStaleSitemapChunks(publicDir);
   }
 
   return {
@@ -117,13 +124,22 @@ async function generateBlogSitemap() {
   };
 }
 
+function removeStaleSitemapChunks(publicDir) {
+  fs.readdirSync(publicDir)
+    .filter(file => /^sitemap-\d+\.xml$/.test(file))
+    .forEach(file => fs.unlinkSync(path.join(publicDir, file)));
+}
+
 function generateXML(urls) {
-  const urlElements = urls.map(url => `  <url>
-    <loc>${escapeXml(url.loc)}</loc>
-    <lastmod>${url.lastmod}</lastmod>
+  const urlElements = urls.map(url => {
+    const lastmod = url.lastmod ? `\n    <lastmod>${url.lastmod}</lastmod>` : '';
+
+    return `  <url>
+    <loc>${escapeXml(url.loc)}</loc>${lastmod}
     <changefreq>${url.changefreq}</changefreq>
     <priority>${url.priority}</priority>
-  </url>`).join('\n');
+  </url>`;
+  }).join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -219,9 +235,10 @@ export {
   generateXML
 };
 
-// Exécuter si appelé directement
-generateBlogSitemap().catch(error => {
-  console.error('❌ Erreur fatale:', error.message);
-  // Ne pas quitter avec un code d'erreur pour éviter de casser le build
-  process.exit(0);
-});
+// Exécuter uniquement si le fichier est appelé directement.
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  generateBlogSitemap().catch(error => {
+    console.error('❌ Erreur fatale:', error.message);
+    process.exitCode = 1;
+  });
+}

@@ -33,6 +33,23 @@ npm run blog-sitemap:watch
 npm run blog-sitemap:force
 ```
 
+### Automatisation GitHub (production)
+
+Le workflow `.github/workflows/update-sitemap.yml` régénère le sitemap chaque
+heure et peut aussi être lancé manuellement depuis l'onglet **Actions** de
+GitHub. Il valide le XML, puis crée un commit uniquement si le sitemap a changé.
+
+Ajoutez les secrets suivants dans **GitHub > Settings > Secrets and variables >
+Actions** :
+
+```text
+VITE_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY
+```
+
+Le dépôt doit autoriser les workflows à écrire dans le dépôt via **Settings >
+Actions > General > Workflow permissions > Read and write permissions**.
+
 ### Webhooks (optionnel)
 ```bash
 # Démarrer le serveur webhook
@@ -65,7 +82,15 @@ Pour activer les webhooks automatiques, configurez dans Supabase :
 
 ## 🔄 Méthodes de Mise à Jour
 
-### 1. Surveillance Continue (Recommandé pour le développement)
+### 1. GitHub Actions (Recommandé pour la production)
+
+- Synchronisation automatique toutes les heures
+- Mise à jour versionnée de `public/sitemap.xml`
+- Déclenchement du déploiement lors d'un changement
+- Échec explicite si Supabase n'est pas accessible, afin de ne pas publier un
+  sitemap incomplet
+
+### 2. Surveillance Continue (Recommandé pour le développement)
 ```bash
 npm run blog-sitemap:watch
 ```
@@ -73,7 +98,7 @@ npm run blog-sitemap:watch
 - Détection des nouveaux articles publiés
 - Mise à jour automatique du sitemap
 
-### 2. Webhooks (Recommandé pour la production)
+### 3. Webhooks (serveur Node persistant uniquement)
 ```bash
 npm run webhook:start
 ```
@@ -81,7 +106,7 @@ npm run webhook:start
 - Plus efficace pour la production
 - Nécessite la configuration des webhooks Supabase
 
-### 3. Mise à Jour Manuelle
+### 4. Mise à Jour Manuelle
 ```bash
 npm run blog-sitemap:force
 ```
@@ -135,15 +160,9 @@ npm run blog-sitemap:watch
 ### Production
 1. Configurer les variables d'environnement
 2. Configurer les webhooks Supabase (optionnel)
-3. Ajouter au processus de build :
-```json
-{
-  "scripts": {
-    "prebuild": "npm run blog-sitemap",
-    "build": "vite build"
-  }
-}
-```
+3. Ajouter les deux secrets GitHub Actions décrits plus haut
+4. Activer les permissions d'écriture des workflows
+5. Lancer une première fois **Update sitemap** depuis l'onglet Actions
 
 ## 🔍 Validation
 
