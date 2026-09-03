@@ -39,13 +39,10 @@ Le workflow `.github/workflows/update-sitemap.yml` régénère le sitemap chaque
 heure et peut aussi être lancé manuellement depuis l'onglet **Actions** de
 GitHub. Il valide le XML, puis crée un commit uniquement si le sitemap a changé.
 
-Ajoutez les secrets suivants dans **GitHub > Settings > Secrets and variables >
-Actions** :
-
-```text
-VITE_SUPABASE_URL
-VITE_SUPABASE_ANON_KEY
-```
+Le workflow utilise en priorité les variables d'environnement
+`VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY`. Lorsqu'elles ne sont pas
+définies sur GitHub Actions, il charge automatiquement les valeurs publiques
+du client Supabase présentes dans `.env.example`.
 
 Le dépôt doit autoriser les workflows à écrire dans le dépôt via **Settings >
 Actions > General > Workflow permissions > Read and write permissions**.

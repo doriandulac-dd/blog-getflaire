@@ -7,6 +7,25 @@ import dotenv from 'dotenv';
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const projectRoot = path.join(__dirname, '..');
+
+function loadSupabaseEnvironment() {
+  if (!process.env.VITE_SUPABASE_URL) {
+    delete process.env.VITE_SUPABASE_URL;
+  }
+  if (!process.env.VITE_SUPABASE_ANON_KEY) {
+    delete process.env.VITE_SUPABASE_ANON_KEY;
+  }
+
+  dotenv.config();
+
+  if (!process.env.VITE_SUPABASE_URL || !process.env.VITE_SUPABASE_ANON_KEY) {
+    dotenv.config({
+      path: path.join(projectRoot, '.env.example'),
+      override: false
+    });
+  }
+}
 
 // Configuration pour le blog
 const BLOG_SITE_URL = 'https://blog.getflaire.fr';
@@ -34,7 +53,7 @@ async function generateBlogSitemap() {
   
   try {
     // Charger les variables d'environnement
-    dotenv.config();
+    loadSupabaseEnvironment();
     
     const supabaseUrl = process.env.VITE_SUPABASE_URL;
     const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
@@ -199,7 +218,7 @@ function escapeXml(unsafe) {
 async function testBlogConnection() {
   console.log('🔍 Test de connexion à Supabase pour le blog...');
   
-  dotenv.config();
+  loadSupabaseEnvironment();
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
